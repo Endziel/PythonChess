@@ -1,6 +1,5 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.129.0/build/three.module.js';
 import { OrbitControls } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/OrbitControls.js';
-import { DragControls } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/DragControls.js';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js';
 var width = 1376;
     var height = 768;
@@ -73,45 +72,14 @@ var width = 1376;
     renderer.shadowMap.type = THREE.PCFShadowMap;
     document.body.appendChild(renderer.domElement);
 
-    // const controls = new OrbitControls(camera, renderer.domElement);
-    // controls.update();
-    
-    // var controls = new DragControls(scene.children, camera, renderer.domElement)
-
-    
-    //movement - please calibrate these values
-    var xSpeed = 0.05;
-    var ySpeed = 0.05;
-
-    document.addEventListener("keydown", onDocumentKeyDown, false);
-    function onDocumentKeyDown(event) {
-        
-        var keyCode = event.which;
-        console.log("something qdqwdqwdqw KEYCODE: " + keyCode)
-        if (keyCode == 87) {
-            container.rotation.x += ySpeed;
-        } else if (keyCode == 83) {
-            container.rotation.x -= ySpeed;
-        } else if (keyCode == 65) {
-            container.rotation.y -= xSpeed;
-        } else if (keyCode == 68) {
-            container.rotation.y += xSpeed;
-        } else if (keyCode == 32) {
-            container.rotation.set(0, 0, 0);
-        }
-        // scene.children.forEach(printName)wd
-    };
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.update();
 
     // create loading manager to load in all our models
     var manager = new THREE.LoadingManager();
     manager.onLoad = init;
 
     const loader = new GLTFLoader(manager);
-
-    // Optional: Provide a DRACOLoader instance to decode compressed mesh data
-    // const dracoLoader = new DRACOLoader();
-    // dracoLoader.setDecoderPath( '/examples/js/libs/draco/' );
-    // loader.setDRACOLoader( dracoLoader );
 
     // Load a glTF resource
     loader.load(    
@@ -142,25 +110,68 @@ var width = 1376;
 
         }
     );
+    // const loader = new GLTFLoader();
+
+    // loader.load('chessJSView/scene.gltf', function (gltf) {
+
+    //     container.add(gltf.scene);
+
+    // }, undefined, function (error) {
+
+    //     console.error(error);
+
+    // });
+
+    // loader.load(
+    //     // resource URL
+    //     "chessJSView/chess-set.json",
+    
+    //     // onLoad callback
+    //     // Here the loaded data is assumed to be an object
+    //     function ( obj ) {
+    //         // Add the loaded object to the scene
+    //         scene.add( obj );
+    //     },
+    
+    //     // onProgress callback
+    //     function ( xhr ) {
+    //         console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+    //     },
+    
+    //     // onError callback
+    //     function ( err ) {
+    //         console.error( 'An error happened' );
+    //     }
+    // );
+
+
+
+
+    // items.forEach(function(item) {
+    //     loader.load(item.model, function(geometry, materials) {
+    //         var material = item.board ? new THREE.MeshFaceMaterial(materials) :
+    //                 item.black ? blackMaterial : whiteMaterial;
+    //         var obj = new THREE.Mesh(geometry, material);
+    //         obj.position.set(item.position.x, item.position.y, item.position.z);
+    //         obj.rotation.set(degreeToRad(item.rotation.x), degreeToRad(item.rotation.y),
+    //             degreeToRad(item.rotation.z));
+    //         obj.castShadow = true;
+    //         obj.receiveShadow = true;
+    //         container.add(obj);
+    //     });
+    // });
 
     function init() {
         scene.add(container);
 
-        console.log(scene.children)
-        var figures = [];
-        for (var i = 0; i < scene.getObjectByName("RootNode").children.length - 1; i++) {
-            figures.push(scene.getObjectByName("RootNode").children[i]);
-        }
-        
-        var controls = new DragControls(figures, camera, renderer.domElement);
-
-        render();
-    }
-
-    function render() {
+        // render();
         // container.rotation.y += rotateSpeed;
         renderer.render(scene, camera);
         requestAnimationFrame(render);
+    }
+
+    function render() {
+        
     }
 
     function degreeToRad(deg) {
