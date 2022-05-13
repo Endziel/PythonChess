@@ -17,11 +17,20 @@
 
 
 
-    <script defer src = "/projekt/chessJSView/threeJsView.js" type="module"></script>
 
     <!-- <script defer src="/projekt/app.js"></script> -->
+    <style>
+        .cursor-none {
+            cursor: none !important;
+        }
+
+        .cursor-on {
+            cursor: auto;
+        }
+    </style>
 </head>
-<body>
+<body style="width: 100vw; height: 100vh;">
+
 
     <ul>
         
@@ -29,6 +38,13 @@
 
     <input placeholder="message">
     <button>Send</button>
+
+    <div id = "board">
+        <script defer src = "/projekt/chessJSView/threeJsView.js" type="module"></script>
+<script>
+
+</script>
+    </div>
     
 </body>
 </html>

@@ -5,14 +5,14 @@ import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/l
 var width = 1376;
     var height = 768;
     var aspectRatio = width / height;
-    var fov = 45;
+    var fov = 60;
     var nearClip = 0.1;
-    var farClip = 1000;
+    var farClip = 2000;
     var rotateSpeed = 0.005;
 
     var cameraPosition = new THREE.Vector3(150, 720, 450);
     var cameraTarget = new THREE.Vector3(0, 0, 0);
-    var lightPosition = new THREE.Vector3(25, 30, -50);
+    var lightPosition = new THREE.Vector3(-2025, 30, 100);
 
     var ambientLightIntensity = 0.45;
     var directionalLightIntensity = 1.75;
@@ -25,20 +25,6 @@ var width = 1376;
     var shadowMapWidth = 1024;
     var shadowMapHeight = 1024;
 
-    var blackMaterial = new THREE.MeshPhongMaterial({ 
-        color: 0x110C11,
-        reflectivity: 0.1,
-        shininess: 20,
-        shading: THREE.SmoothShading
-    });
-
-    var whiteMaterial = new THREE.MeshPhongMaterial({
-        color: 0xFCF6E3,
-        reflectivity: 10,
-        shininess: 25,
-        shading: THREE.SmoothShading
-    });
-
     // create scene and a object3D container to store all the mesh items
     var scene = new THREE.Scene();
     var container = new THREE.Object3D();
@@ -47,8 +33,6 @@ var width = 1376;
     var camera = new THREE.PerspectiveCamera(fov, aspectRatio, nearClip, farClip);
     camera.position.copy(cameraPosition);
     camera.lookAt(cameraTarget);
-
-    
 
     // add an ambient and directional light
     var ambientLight = new THREE.AmbientLight(ambientLightColour, ambientLightIntensity);
@@ -65,20 +49,24 @@ var width = 1376;
     scene.add(ambientLight);
     scene.add(directionalLight);
 
+    // var hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x080820, 4);
+    // scene.add(hemiLight);
+    var spotLight = new THREE.SpotLight(0xffa95c,4);
+    spotLight.castShadow = true;
+
     // create renderer and attach to DOM
     var renderer = new THREE.WebGLRenderer();
     renderer.setSize(width, height);
     renderer.setClearColor(clearColour, 1);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
-    document.body.appendChild(renderer.domElement);
-
-    // const controls = new OrbitControls(camera, renderer.domElement);
-    // controls.update();
+    // document.body.appendChild(renderer.domElement);
+    // document.body.
+    let element = document.getElementById('board');
     
-    // var controls = new DragControls(scene.children, camera, renderer.domElement)
+    element.appendChild(renderer.domElement);
 
-    
+
     //movement - please calibrate these values
     var xSpeed = 0.05;
     var ySpeed = 0.05;
@@ -99,7 +87,7 @@ var width = 1376;
         } else if (keyCode == 32) {
             container.rotation.set(0, 0, 0);
         }
-        // scene.children.forEach(printName)wd
+        
     };
 
     // create loading manager to load in all our models
@@ -107,11 +95,6 @@ var width = 1376;
     manager.onLoad = init;
 
     const loader = new GLTFLoader(manager);
-
-    // Optional: Provide a DRACOLoader instance to decode compressed mesh data
-    // const dracoLoader = new DRACOLoader();
-    // dracoLoader.setDecoderPath( '/examples/js/libs/draco/' );
-    // loader.setDRACOLoader( dracoLoader );
 
     // Load a glTF resource
     loader.load(    
@@ -152,13 +135,69 @@ var width = 1376;
             figures.push(scene.getObjectByName("RootNode").children[i]);
         }
         
-        var controls = new DragControls(figures, camera, renderer.domElement);
+        var Orbcontrols = new OrbitControls(camera,renderer.domElement);
+        // Orbcontrols.target.set(4.5, 0, 4.5);
+ 
+        // Orbcontrols.enablePan = false;
+        // Orbcontrols.maxPolarAngle = Math.PI / 2;
+        
+        // Orbcontrols.enableDamping = true;
+
+        Orbcontrols.mouseButtons = {
+            RIGHT: THREE.MOUSE.ROTATE,
+            MIDDLE: THREE.MOUSE.DOLLY
+        };
+        
+        const controls = new DragControls(figures, camera, renderer.domElement);
+        // controls.mmouseButtons{
+        //     LEFT: THREE.MOUSE.DRAG
+        // };
+        controls.addEventListener( 'dragstart', function ( event ) {
+            Orbcontrols.enabled = false;
+            console.log(renderer.domElement)
+
+            event.object.material.emissive.set( 0xaaaaaa );
+            // console.log(event.object);
+            renderer.domElement.classList.remove("cursor-on");
+            renderer.domElement.classList.add("cursor-none");
+            console.log(document)
+
+        } );
+
+        controls.addEventListener ( 'drag', function( event ){
+            console.log('drag');
+            event.object.position.z = 0; // This will prevent moving z axis, but will be on 0 line. change this to your object position of z axis.
+            
+            
+           })
+        
+        controls.addEventListener( 'dragend', function ( event ) {
+            Orbcontrols.enabled = true;
+
+            event.object.material.emissive.set( 0x000000 );
+            console.log(event.object.position);
+
+            renderer.domElement.classList.add("cursor-on");
+            renderer.domElement.classList.remove("cursor-none");
+
+        } );
+
+        controls.addEventListener('click',function (event){
+            event.object.location.position.x += 100;
+            renderer.domElement.classList.add("cursor-none");
+        } );
+
+        
+        
+
+        Orbcontrols.update();
 
         render();
     }
 
     function render() {
         // container.rotation.y += rotateSpeed;
+        
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
