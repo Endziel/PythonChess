@@ -12,7 +12,7 @@ var width = 1376;
 
     var cameraPosition = new THREE.Vector3(150, 720, 450);
     var cameraTarget = new THREE.Vector3(0, 0, 0);
-    var lightPosition = new THREE.Vector3(-2025, 30, 100);
+    var lightPosition = new THREE.Vector3(30, 1000, -175);
 
     var ambientLightIntensity = 0.45;
     var directionalLightIntensity = 1.75;
@@ -33,6 +33,9 @@ var width = 1376;
     var camera = new THREE.PerspectiveCamera(fov, aspectRatio, nearClip, farClip);
     camera.position.copy(cameraPosition);
     camera.lookAt(cameraTarget);
+    
+    // var light = new THREE.PointLight( 0xffffff, 0.4 );
+    // camera.add( light );
 
     // add an ambient and directional light
     var ambientLight = new THREE.AmbientLight(ambientLightColour, ambientLightIntensity);
@@ -45,17 +48,17 @@ var width = 1376;
     directionalLight.shadow.camera.bottom = -shadowFrustum;
     directionalLight.shadow.mapSize.width = shadowMapWidth;
     directionalLight.shadow.mapSize.height = shadowMapHeight;
-
+    
     scene.add(ambientLight);
     scene.add(directionalLight);
 
-    // var hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x080820, 4);
+    // var hemiLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 0);
     // scene.add(hemiLight);
-    var spotLight = new THREE.SpotLight(0xffa95c,4);
-    spotLight.castShadow = true;
+    // var spotLight = new THREE.SpotLight(0xffa95c,4);
+    // spotLight.castShadow = true;
 
     // create renderer and attach to DOM
-    var renderer = new THREE.WebGLRenderer();
+    var renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.setSize(width, height);
     renderer.setClearColor(clearColour, 1);
     renderer.shadowMap.enabled = true;
@@ -136,22 +139,15 @@ var width = 1376;
         }
         
         var Orbcontrols = new OrbitControls(camera,renderer.domElement);
-        // Orbcontrols.target.set(4.5, 0, 4.5);
- 
-        // Orbcontrols.enablePan = false;
-        // Orbcontrols.maxPolarAngle = Math.PI / 2;
-        
-        // Orbcontrols.enableDamping = true;
 
-        Orbcontrols.mouseButtons = {
-            RIGHT: THREE.MOUSE.ROTATE,
-            MIDDLE: THREE.MOUSE.DOLLY
-        };
+        // Orbcontrols.mouseButtons = {
+        //     RIGHT: THREE.MOUSE.ROTATE,
+        //     MIDDLE: THREE.MOUSE.DOLLY
+            
+        // };
         
         const controls = new DragControls(figures, camera, renderer.domElement);
-        // controls.mmouseButtons{
-        //     LEFT: THREE.MOUSE.DRAG
-        // };
+        
         controls.addEventListener( 'dragstart', function ( event ) {
             Orbcontrols.enabled = false;
             console.log(renderer.domElement)
@@ -160,16 +156,13 @@ var width = 1376;
             // console.log(event.object);
             renderer.domElement.classList.remove("cursor-on");
             renderer.domElement.classList.add("cursor-none");
-            console.log(document)
 
         } );
 
         controls.addEventListener ( 'drag', function( event ){
-            console.log('drag');
             event.object.position.z = 0; // This will prevent moving z axis, but will be on 0 line. change this to your object position of z axis.
-            
-            
-           })
+           
+        })
         
         controls.addEventListener( 'dragend', function ( event ) {
             Orbcontrols.enabled = true;
@@ -179,16 +172,13 @@ var width = 1376;
 
             renderer.domElement.classList.add("cursor-on");
             renderer.domElement.classList.remove("cursor-none");
-
+            scene.getObjectByName("RootNode").children[32].children[2].visible = false;
         } );
 
-        controls.addEventListener('click',function (event){
-            event.object.location.position.x += 100;
-            renderer.domElement.classList.add("cursor-none");
-        } );
-
-        
-        
+        // controls.addEventListener('click',function (event){
+        //     event.object.location.position.x += 100;
+        //     renderer.domElement.classList.add("cursor-none");
+        // } );
 
         Orbcontrols.update();
 
