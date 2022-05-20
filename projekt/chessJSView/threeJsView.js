@@ -108,11 +108,11 @@ var width = 1376;
 
             container.add( gltf.scene );
 
-            gltf.animations; // Array<THREE.AnimationClip>
-            gltf.scene; // THREE.Group
-            gltf.scenes; // Array<THREE.Group>
-            gltf.cameras; // Array<THREE.Camera>
-            gltf.asset; // Object
+            // gltf.animations; // Array<THREE.AnimationClip>
+            // gltf.scene; // THREE.Group
+            // gltf.scenes; // Array<THREE.Group>
+            // gltf.cameras; // Array<THREE.Camera>
+            // gltf.asset; // Object
 
         },
         // called while loading is progressing
@@ -146,6 +146,8 @@ var width = 1376;
             
         // };
         
+        console.log(scene.getObjectByName("RootNode").children);
+
         const controls = new DragControls(figures, camera, renderer.domElement);
         
         controls.addEventListener( 'dragstart', function ( event ) {
@@ -172,13 +174,8 @@ var width = 1376;
 
             renderer.domElement.classList.add("cursor-on");
             renderer.domElement.classList.remove("cursor-none");
-            scene.getObjectByName("RootNode").children[32].children[2].visible = false;
+            // scene.getObjectByName("RootNode").children[32].children[2].visible = false;
         } );
-
-        // controls.addEventListener('click',function (event){
-        //     event.object.location.position.x += 100;
-        //     renderer.domElement.classList.add("cursor-none");
-        // } );
 
         Orbcontrols.update();
 
