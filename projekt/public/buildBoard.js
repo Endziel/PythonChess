@@ -7,7 +7,7 @@ class BuildBoard{
     #SQUARE_POSITIONS_MAP = {};
     #figures = [];
     #board;
-    #font;
+    // #font;
 
     constructor(){
         this.#SQUARE_SIZE = 2;
@@ -106,15 +106,16 @@ class BuildBoard{
         let whitePiecesPositions = ['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'];
         let blackPiecesPositions = ['a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8', 'a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7'];
         let piecesNames = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
+
         const loader = new GLTFLoader();
 
         // loading white pieces
         for (var i = 0; i < whitePiecesPositions.length; i++) {
             let url;
             if (i < whitePiecesPositions.length / 2) {
-                url = 'chessJSView/' + piecesNames[i] + '.glb';
+                url = '/projekt/public/objects/' + piecesNames[i] + '.glb';
             } else {
-                url = 'chessJSView/pawn.glb';
+                url = '/projekt/public/objects/pawn.glb';
             }
 
             let gltf = await loader.loadAsync(url);
@@ -133,9 +134,9 @@ class BuildBoard{
         for (var i = 0; i < blackPiecesPositions.length; i++) {
             let url;
             if (i < blackPiecesPositions.length / 2) {
-                url = 'chessJSView/b_' + piecesNames[i] + '.glb';
+                url = '/projekt/public/objects/b_' + piecesNames[i] + '.glb';
             } else {
-                url = 'chessJSView/b_pawn.glb';
+                url = '/projekt/public/objects/b_pawn.glb';
             }
 
             let gltf = await loader.loadAsync(url);
@@ -143,8 +144,6 @@ class BuildBoard{
             // piece.name = name;
             
             let pieceMesh = piece.children[0];
-
-            const vector = this.#board.getObjectByName(blackPiecesPositions[i]).position;
            
             piece.position.setY(0);
             pieceMesh.material.color.set('#fff');
@@ -154,36 +153,17 @@ class BuildBoard{
             this.#figures.push(piece);
         }
 
-
-
-
-        
-        
-
-        
-
-        
     }
 
     async #drawBoardBottom() {
         const loader = new GLTFLoader();
         // const texture = await new THREE.TextureLoader().loadAsync('chessJSView/textures/white-marble.jpg');
 
-        let gltf = await loader.loadAsync('chessJSView/board_bottom3.glb');
-        // console.log(gltf);
+        let gltf = await loader.loadAsync('/projekt/public/objects/board_bottom3.glb');
+        
         let boardBottomRectangle = gltf.scene.children[0];
         boardBottomRectangle.position.setY(-1.5);
-        
-        // console.log(texture);
-        // texture.repeat.set(1, 1);
-        // // boardBottomRectangle.children[0].material.color.set("#fff");
-        // boardBottomRectangle.children[0].material = new THREE.MeshBasicMaterial( {
-        //     map: texture
-        // } );;
-
-        
-
-        // console.log(boardBottomRectangle);
+      
         this.#board.add(boardBottomRectangle);
     }
   

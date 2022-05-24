@@ -4,7 +4,7 @@ import { DragControls } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js';
 // import {BuildBoard} from './buildBoard.js';
 // import "./buildBoard.js";
-import  BuildBoard  from './buildBoard.js';
+import  BuildBoard  from '/projekt/public/buildBoard.js';
 
 var width = 1376;
     var height = 768;

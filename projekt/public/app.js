@@ -8,6 +8,22 @@ socket.on('message', text => {
 
 });
 
+socket.on('startGameWhite', text => {
+
+    const el = document.createElement('li');
+    el.innerHTML = text;
+    document.querySelector('ul').appendChild(el)
+
+});
+
+socket.on('startGameBlack', text => {
+
+    const el = document.createElement('li');
+    el.innerHTML = text;
+    document.querySelector('ul').appendChild(el)
+
+});
+
 document.querySelector('button').onclick = () => {
 
     const text = document.querySelector('input').value;

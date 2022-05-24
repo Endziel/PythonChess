@@ -3,23 +3,47 @@ import socketio
 
 sio = socketio.Server()
 app = socketio.WSGIApp(sio, static_files={
-    '/': 'projekt/index.html',
-    '/projekt/app.js': 'projekt/app.js'
+    '/': 'projekt/public/index.html',
+    '/projekt/public': 'projekt/public'
 })
 
-# @sio.event
-# def connect(sid, environ):
-#     print('connect ', sid)
+counter = 1
+    
+@sio.event
+def connect(sid, environ):
+    # numClients = sio.
+    global counter
+    counter = counter + 1
 
-# @sio.event
-# def message(sid, data):
-#     print('message ', data)
-#     sio.emit("message", data)
+    sio.enter_room(sid, 'chess' + str(counter//2))
+    if counter%2 == 1:
+        sio.emit("startGameWhite", "white", room='chess' + str(counter//2),skip_sid=sid)
+        sio.emit("startGameBlack", "black", to=sid)
+    
 
-# @sio.event
-# def disconnect(sid):
-#     print('disconnect ', sid)
+    
+    print('connect ', sid, "roomNr:", counter//2)
+    
 
+# @sio.on('my custom event', namespace='/chat')
+# @sio.event
+# def startgame
+
+@sio.event
+def message(sid, data):
+    print('message ', data)
+    roomNr = sio.rooms(sid)
+    print(roomNr)
+    sio.emit("message", data, room=roomNr)
+
+
+
+@sio.event
+def disconnect(sid):
+    print('disconnect ', sid)
+    sio.leave_room(sid, 'chess')
+
+    
 if __name__ == '__main__':
     #import eventy
     
