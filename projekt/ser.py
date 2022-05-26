@@ -43,7 +43,15 @@ def disconnect(sid):
     print('disconnect ', sid)
     sio.leave_room(sid, 'chess')
 
-    
+@sio.event
+def endTurn(sid,pieceStart, pieceEnd):
+    print(pieceStart, pieceEnd, sid)
+    roomNr = sio.rooms(sid)
+    sio.emit("updateBoard", pieceStart + "_" + pieceEnd, room=roomNr)
+
+
+
+
 if __name__ == '__main__':
     #import eventy
     

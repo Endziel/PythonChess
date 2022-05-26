@@ -5,7 +5,8 @@ class BuildBoard{
     #SQUARE_SIZE;
     #SQUARE_MESH_IDS = [];
     #SQUARE_POSITIONS_MAP = {};
-    #figures = [];
+    #blackFigures = [];
+    #whiteFigures = [];
     #board;
     // #font;
 
@@ -15,8 +16,12 @@ class BuildBoard{
         this.#drawBoardBottom();
     }
 
-    get figures() {
-        return this.#figures;
+    get blackFigures() {
+        return this.#blackFigures;
+    }
+
+    get whiteFigures() {
+        return this.#whiteFigures;
     }
 
     get board() {
@@ -29,6 +34,7 @@ class BuildBoard{
 
     buildBoardWithPieces(){
         this.#addPieces();
+        console.log("buildBoardWithPieces");
         return this.#board;
 
     }
@@ -127,7 +133,7 @@ class BuildBoard{
             piece.position.setY(0);
             // piece.scale.set(10, 10, 10);
             this.#board.getObjectByName(whitePiecesPositions[i]).add(piece);
-            this.#figures.push(piece);
+            this.#whiteFigures.push(piece);
         }
 
         // loading black pieces
@@ -150,7 +156,7 @@ class BuildBoard{
             // piece.scale.set(10, 10, 10);
 
             this.#board.getObjectByName(blackPiecesPositions[i]).add(piece);
-            this.#figures.push(piece);
+            this.#blackFigures.push(piece);
         }
 
     }
