@@ -126,7 +126,7 @@ class BuildBoard{
 
             let gltf = await loader.loadAsync(url);
             let piece = gltf.scene.children[0];
-            // piece.name = name;
+            piece.name = i < whitePiecesPositions.length / 2 ? piecesNames[i] : "pawn" + whitePiecesPositions.length / 8;
 
             let pieceMesh = piece.children[0];
             pieceMesh.material.color.set('#fff');
@@ -147,7 +147,7 @@ class BuildBoard{
 
             let gltf = await loader.loadAsync(url);
             let piece = gltf.scene.children[0];
-            // piece.name = name;
+            piece.name = i < blackPiecesPositions.length / 2 ? piecesNames[i] : "pawn" + blackPiecesPositions.length / 8;
             
             let pieceMesh = piece.children[0];
            

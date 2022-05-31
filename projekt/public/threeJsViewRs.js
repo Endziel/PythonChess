@@ -4,6 +4,7 @@ import { DragControls } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm
 import  BuildBoard  from '/projekt/public/buildBoard.js';
 
 
+
 class ThreeJsView {
     #width = 1376;
     #height = 768;
@@ -42,8 +43,13 @@ class ThreeJsView {
         this.#addControls(myPieces);
         // this.render();
 
+        const axesHelper = new THREE.AxesHelper( 5 );
+            this.scene.add( axesHelper );
 
+    }
 
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     get renderer() {
@@ -151,6 +157,9 @@ class ThreeJsView {
         let previousFieldColor;
         let previousField;
         let closestField;
+        let objectInWorldVectorBeforeMove = new THREE.Vector3( 0, 0, 0 );
+
+        
 
         function onHoverOff(event) {
             event.object.material.color.set("#fff");
@@ -161,6 +170,10 @@ class ThreeJsView {
         }
 
         function onDragStart(event, self, orbitControls) {
+            event.object.getWorldPosition(objectInWorldVectorBeforeMove);
+            const axesHelper = new THREE.AxesHelper( 30 );
+            event.object.add( axesHelper );
+
             orbitControls.enabled = false;
     
             event.object.material.color.set("#ccc");
@@ -228,9 +241,15 @@ class ThreeJsView {
             orbitControls.enabled = true;
     
             event.object.material.color.set("#ffffff");
-            const vector = new THREE.Vector3( 0, 0, 0 );
-            event.object.getWorldPosition(vector);
-            // console.log(vector);
+            const objectInWorldVectorAfterMove = new THREE.Vector3( 0, 0, 0 );
+            event.object.getWorldPosition(objectInWorldVectorAfterMove);
+            const objectInWorldVectorDifferentFromMove = new THREE.Vector3( 0, 0, 0 );
+            objectInWorldVectorDifferentFromMove.subVectors(objectInWorldVectorAfterMove, objectInWorldVectorBeforeMove);
+
+
+            
+            
+
             self.container.getObjectByName(closestField).material.color.set(previousFieldColor);
             
             self.renderer.domElement.classList.add("cursor-on");
@@ -238,8 +257,19 @@ class ThreeJsView {
             
             let pieceStart = event.object.parent.parent.name;
             let pieceEnd = closestField;
+            console.log("vector poprzednio: ", objectInWorldVectorBeforeMove);
+            console.log("vector ppotem: ", objectInWorldVectorAfterMove);
+            console.log("róznica ", objectInWorldVectorDifferentFromMove);
+
+
             
-            self.socket.emit("endTurn", pieceStart, pieceEnd);
+
+
+            event.object.position.set(0,0,0);
+            
+            
+            // console.log(self.socket);
+            self.socket.emit("endTurn", pieceStart, pieceEnd);  
         }
         
     }
@@ -249,18 +279,80 @@ class ThreeJsView {
     }
 
     blockPieces() {
-        this.#dragControls.enabled = false;
+        this.#dragControls.deactivate();
     }
 
     unblockPieces() {
-        this.#dragControls.enabled = true;
-
+        // this.#dragControls.enabled = true;
+        this.#dragControls.activate();
     }
 
-    changePiecePosition(previous, current) {
-        this.container.getObjectByName(current).children[0] = this.container.getObjectByName(previous).children[0];
-        this.container.getObjectByName(previous).children[0].parent = undefined;
+    async changePiecePosition(previous, current) {
+        // if (this.container.getObjectByName(current).children){
+        //     this.container.getObjectByName(current).children[0].remove;
+        // }
+        // x: 5, y: -0.25, z: 
+        this.scene.updateMatrixWorld();
+        let piece = this.container.getObjectByName(previous).children[0];
+        
+        
+        // this.scene.attach(piece);
+        await this.sleep(1000);
+        console.log("test1");
+        
+        const vector = new THREE.Vector3( 0, 0, 0 );
+        await this.sleep(1000);
+        console.log("test2");
+
+        this.container.getObjectByName(previous).getWorldPosition(vector);
+
+        const diffVectorsMovePiece = new THREE.Vector3( 0, 0, 0 );
+        diffVectorsMovePiece.subVectors(
+            this.container.getObjectByName(current).getWorldPosition(new THREE.Vector3(0,0,0)),
+            this.container.getObjectByName(previous).getWorldPosition(new THREE.Vector3(0,0,0))
+         );
+
+         console.log(diffVectorsMovePiece);
+
+
+        
+
+        // console.log(vector.x, vector.y, vector.z);
+        // console.log(piece.position.distanceTo(vector));
+        piece.position.copy(diffVectorsMovePiece);
+        
+
+        await this.sleep(1000);
+        console.log("test3");
+        
+        // this.container.getObjectByName(current).attach(piece);
+
+        
+        // const vector = new THREE.Vector3( 0, 0, 0 );
+        // this.container.getObjectByName(current).getWorldPosition(vector);
+        // console.log(vector);
+        
+        // let piece = this.container.getObjectByName(previous).children[0];
+        // this.scene.attach(piece);
+        
+        // piece.position.set(vector.x, vector.y, vector.z);
+
+        // this.container.getObjectByName(current).attach(piece);
+
+
+        // this.container.getObjectByName(current).add(this.container.getObjectByName(previous).children[0]);
+        console.log("previous: ", this.container.getObjectByName(previous).children[0], "current: ", this.container.getObjectByName(current).children[0]);
+        
+        // const vector2 = this.container.getObjectByName(current).children[0].worldToLocal(vector);
+        // const vector = new THREE.Vector3( 0, 0, 0 );
+        // this.container.getObjectByName(current).getWorldPosition(vector);
+        // console.log(vector2);
         console.log(this.scene);
+        // this.container.getObjectByName(current).children[0].position.set(vector2.x, vector2.y, vector2.z);
+        // this.container.getObjectByName(previous).children[0].parent = undefined;
+
+        
+
     }
 
 } 
