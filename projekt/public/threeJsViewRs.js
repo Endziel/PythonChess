@@ -238,6 +238,7 @@ class ThreeJsView {
         }
     
         function onDragEnd(event, self, orbitControls) {
+            self.blockPieces();
             orbitControls.enabled = true;
     
             event.object.material.color.set("#ffffff");
@@ -266,7 +267,6 @@ class ThreeJsView {
 
 
             event.object.position.set(0,0,0);
-            self.blockPieces();
             
             
             // console.log(self.socket);
@@ -300,12 +300,12 @@ class ThreeJsView {
         
         
         // this.scene.attach(piece);
-        await this.sleep(1000);
-        console.log("test1");
+        // await this.sleep(1000);
+        // console.log("test1");
         
         const vector = new THREE.Vector3( 0, 0, 0 );
-        await this.sleep(1000);
-        console.log("test2");
+        // await this.sleep(1000);
+        // console.log("test2");
 
         this.container.getObjectByName(previous).getWorldPosition(vector);
 
@@ -325,8 +325,8 @@ class ThreeJsView {
         piece.position.copy(diffVectorsMovePiece);
         
 
-        await this.sleep(1000);
-        console.log("test3");
+        // await this.sleep(1000);
+        // console.log("test3");
         
         this.container.getObjectByName(current).add(piece);
         piece.position.set(0, 0, 0);
@@ -361,7 +361,10 @@ class ThreeJsView {
 
     removePiece(piecePosition) {
         let piece = this.container.getObjectByName(piecePosition).children[0];
-        this.container.getObjectByName(piecePosition).remove(piece);
+    
+        piece.parent.remove(piece);
+        console.log(this.#dragControls.getObjects().splice(this.#dragControls.getObjects().indexOf(piece),1));
+        
     }
 
 } 

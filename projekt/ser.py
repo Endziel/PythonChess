@@ -1,6 +1,8 @@
 import eventlet
 import socketio
+import threading
 from room import Room
+from chessGame import ChessGame
 
 class Server:
     def __init__(self):
@@ -11,45 +13,65 @@ class Server:
             })
         self.counter = 1
         self.listOfRooms = {}
+        self.counter_lock = threading.Lock()
         self.call_backs()
         eventlet.wsgi.server(eventlet.listen(('', 5555)), self.app)
 
     def call_backs(self):
         @self.sio.event
         def connect(sid, environ):
-            # numClients = sio.
-            # global counter
-            # print("-----------------------------------", args)
-            self.counter = self.counter + 1
+            with self.counter_lock:
+                self.counter = self.counter + 1
 
-            roomNr = 'chess' + str(self.counter//2)
-            self.sio.enter_room(sid, roomNr)
+                roomNr = 'chess' + str(self.counter//2)
+                self.sio.enter_room(sid, roomNr)
 
-            if self.counter%2 == 0:
-                self.listOfRooms[roomNr] = Room(self.sio, roomNr);
-                self.listOfRooms[roomNr].setWhitePlayer(sid);
-            if self.counter%2 == 1:
-                self.listOfRooms[roomNr].setBlackPlayer(sid);
-                self.listOfRooms[roomNr].startGame();
-                # self.sio.emit("startGameWhite", "white", room='chess' + str(self.counter//2),skip_sid=sid)
-                # self.sio.emit("startGameBlack", "black", to=sid)
+                # if self.counter%2 == 0:
+                #     self.listOfRooms[roomNr] = Room(self.sio, roomNr);
+                #     self.listOfRooms[roomNr].setWhitePlayer(sid);
+                # if self.counter%2 == 1:
+                #     self.listOfRooms[roomNr].setBlackPlayer(sid);
+                #     self.listOfRooms[roomNr].startGame();
+
+
+                if self.counter%2 == 0:
+                    self.listOfRooms[roomNr] = ChessGame(roomNr, self.sio)
+                    self.listOfRooms[roomNr].setWhitePlayer(sid)
+                if self.counter%2 == 1:
+                    self.listOfRooms[roomNr].setBlackPlayer(sid)
+                    self.sio.emit("startGameWhite", "white", to=self.listOfRooms[roomNr].getWhitePlayerSid())
+                    self.sio.emit("startGameBlack", "black", to=self.listOfRooms[roomNr].getBlackPlayerSid())
+                    self.sio.emit("message", roomNr, room=roomNr)
+
+
+                    # self.sio.emit("startGameWhite", "white", room='chess' + str(self.counter//2),skip_sid=sid)
+                    # self.sio.emit("startGameBlack", "black", to=sid)
+                
+
+                
+                print('connect ', sid, "roomNr:", self.counter//2)
             
 
-            
-            print('connect ', sid, "roomNr:", self.counter//2)
+        @self.sio.event
+        def endTurn(sid, pieceMove):
+            rooms = self.sio.rooms(sid)
+            # indexOfArray = rooms.index("chess")
+            roomNr = ""
+            for room in rooms:
+                if room.startswith("chess"):
+                    roomNr = room
+                    break
+                
+            # print(self.sio.rooms[indexOfArray])
+            print(roomNr)
+            self.listOfRooms[roomNr].endTurn(sid,pieceMove)
             
 
-        # @sio.on('my custom event', namespace='/chat')
-        # @sio.event
-        # def startgame
 
-        
-        # @self.sio.event
-        # def message(sid, data):
-        #     print('message ', data)
-        #     roomNr = self.sio.rooms(sid)
-        #     print(roomNr)
-        #     self.sio.emit("message", data, room=roomNr)
+            
+
+
+
 
 
         

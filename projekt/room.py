@@ -7,12 +7,11 @@ class Room:
         self.whitePlayerSid = ""
         self.blackPlayerSid = ""
         self.board = chess.Board()
-        
 
         self.call_backs()
     
     def call_backs(self):
-        @self.sio.event
+        @self.sio.on('endTurn' + str())
         def endTurn(sid, pieceMove):
             print(pieceMove, sid)
             if self.check() != None:
@@ -27,6 +26,7 @@ class Room:
             print("pieceMove: ", pieceMove)
             # print()
             print(self.board)
+            print(self.sio.rooms(sid), "sid:", sid)
             if move in self.board.legal_moves:
                 # self.makeMove(pieceMove, sid, capture=self.capturedPiece(move))
                 self.makeMove(pieceMove, sid, capture=self.board.is_capture(move))
@@ -57,14 +57,6 @@ class Room:
     #         else:
     #             return self.board.piece_at(move.to_square).piece_type
     #     return 0
-
-    # def makeMove(self, move, lastMoveSid, capture=0):
-    #     print(capture)
-    #     if capture != 0:
-    #         self.removePiece(move[2:])
-    #     self.sio.emit("updateBoard", move, room=self.roomNr)
-    #     self.sio.emit("blockMovement",to=lastMoveSid)
-    #     self.sio.emit("unblockMovement", room=self.roomNr, skip_sid=lastMoveSid)
 
     def makeMove(self, move, lastMoveSid, capture=False):
         print(capture)

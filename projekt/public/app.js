@@ -20,7 +20,6 @@ class AppClient {
     
         this.socket.on('startGameWhite', text => {
             this.Game = new ThreeJsView(text, this.socket);
-            // this.Game.blockPieces();
             this.Game.render();
     
             const el = document.createElement('li');
@@ -39,8 +38,6 @@ class AppClient {
             const el = document.createElement('li');
             el.innerHTML = text;
             document.querySelector('ul').appendChild(el)
-            // this.Game.render();
-    
         });
     
         this.socket.on('blockMovement', () => {
@@ -57,24 +54,12 @@ class AppClient {
             let pieceEnd = piecePosition.slice(2);
             
             this.Game.changePiecePosition(pieceStart, pieceEnd);
-
-
-            
-            // this.Game.render();
-
-    
         });
     
         this.socket.on('removePiece', piecePosition => {
             console.log("removePiece");
             
             this.Game.removePiece(piecePosition);
-
-
-            
-            // this.Game.render();
-
-    
         });
     
     
