@@ -266,10 +266,13 @@ class ThreeJsView {
 
 
             event.object.position.set(0,0,0);
+            self.blockPieces();
             
             
             // console.log(self.socket);
-            self.socket.emit("endTurn", pieceStart, pieceEnd);  
+            // if (pieceStart == pieceEnd) return;
+
+            self.socket.emit("endTurn", pieceStart+pieceEnd);  
         }
         
     }
@@ -325,7 +328,8 @@ class ThreeJsView {
         await this.sleep(1000);
         console.log("test3");
         
-        // this.container.getObjectByName(current).attach(piece);
+        this.container.getObjectByName(current).add(piece);
+        piece.position.set(0, 0, 0);
 
         
         // const vector = new THREE.Vector3( 0, 0, 0 );
@@ -353,6 +357,11 @@ class ThreeJsView {
 
         
 
+    }
+
+    removePiece(piecePosition) {
+        let piece = this.container.getObjectByName(piecePosition).children[0];
+        this.container.getObjectByName(piecePosition).remove(piece);
     }
 
 } 

@@ -1,59 +1,70 @@
 import eventlet
 import socketio
+from room import Room
 
-sio = socketio.Server()
-app = socketio.WSGIApp(sio, static_files={
-    '/': 'projekt/public/index.html',
-    '/projekt/public': 'projekt/public'
-})
+class Server:
+    def __init__(self):
+        self.sio = socketio.Server()
+        self.app = socketio.WSGIApp(self.sio, static_files={
+                '/': 'projekt/public/index.html',
+                '/projekt/public': 'projekt/public'
+            })
+        self.counter = 1
+        self.listOfRooms = {}
+        self.call_backs()
+        eventlet.wsgi.server(eventlet.listen(('', 5555)), self.app)
 
-counter = 1
-    
-@sio.event
-def connect(sid, environ):
-    # numClients = sio.
-    global counter
-    counter = counter + 1
+    def call_backs(self):
+        @self.sio.event
+        def connect(sid, environ):
+            # numClients = sio.
+            # global counter
+            # print("-----------------------------------", args)
+            self.counter = self.counter + 1
 
-    sio.enter_room(sid, 'chess' + str(counter//2))
-    if counter%2 == 1:
-        sio.emit("startGameWhite", "white", room='chess' + str(counter//2),skip_sid=sid)
-        sio.emit("startGameBlack", "black", to=sid)
-    
+            roomNr = 'chess' + str(self.counter//2)
+            self.sio.enter_room(sid, roomNr)
 
-    
-    print('connect ', sid, "roomNr:", counter//2)
-    
+            if self.counter%2 == 0:
+                self.listOfRooms[roomNr] = Room(self.sio, roomNr);
+                self.listOfRooms[roomNr].setWhitePlayer(sid);
+            if self.counter%2 == 1:
+                self.listOfRooms[roomNr].setBlackPlayer(sid);
+                self.listOfRooms[roomNr].startGame();
+                # self.sio.emit("startGameWhite", "white", room='chess' + str(self.counter//2),skip_sid=sid)
+                # self.sio.emit("startGameBlack", "black", to=sid)
+            
 
-# @sio.on('my custom event', namespace='/chat')
-# @sio.event
-# def startgame
+            
+            print('connect ', sid, "roomNr:", self.counter//2)
+            
 
-@sio.event
-def message(sid, data):
-    print('message ', data)
-    roomNr = sio.rooms(sid)
-    print(roomNr)
-    sio.emit("message", data, room=roomNr)
+        # @sio.on('my custom event', namespace='/chat')
+        # @sio.event
+        # def startgame
+
+        
+        # @self.sio.event
+        # def message(sid, data):
+        #     print('message ', data)
+        #     roomNr = self.sio.rooms(sid)
+        #     print(roomNr)
+        #     self.sio.emit("message", data, room=roomNr)
 
 
+        
+        @self.sio.event
+        def disconnect(sid):
+            print('disconnect ', sid)
+            self.sio.leave_room(sid, 'chess')
 
-@sio.event
-def disconnect(sid):
-    print('disconnect ', sid)
-    sio.leave_room(sid, 'chess')
-
-@sio.event
-def endTurn(sid,pieceStart, pieceEnd):
-    print(pieceStart, pieceEnd, sid)
-    roomNr = sio.rooms(sid)
-    sio.emit("updateBoard", pieceStart + "_" + pieceEnd, room=roomNr)
+        
+        
 
 
 
 
 if __name__ == '__main__':
     #import eventy
-    
-    eventlet.wsgi.server(eventlet.listen(('', 5555)), app)
+    server = Server()
     

@@ -43,15 +43,39 @@ class AppClient {
     
         });
     
+        this.socket.on('blockMovement', () => {
+            this.Game.blockPieces();
+        });
+
+        this.socket.on('unblockMovement', () => {
+            this.Game.unblockPieces();
+        });
+        
         this.socket.on('updateBoard', piecePosition => {
-            console.log("test");
-            let pieceStart = piecePosition.split("_");
-            this.Game.changePiecePosition(pieceStart[0], pieceStart[1]);
+            console.log("updateBoard");
+            let pieceStart = piecePosition.slice(0,2);
+            let pieceEnd = piecePosition.slice(2);
+            
+            this.Game.changePiecePosition(pieceStart, pieceEnd);
+
+
+            
             // this.Game.render();
 
     
         });
     
+        this.socket.on('removePiece', piecePosition => {
+            console.log("removePiece");
+            
+            this.Game.removePiece(piecePosition);
+
+
+            
+            // this.Game.render();
+
+    
+        });
     
     
         document.querySelector('button').onclick = () => {
