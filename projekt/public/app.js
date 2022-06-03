@@ -48,8 +48,8 @@ class AppClient {
             this.Game.unblockPieces();
         });
         
-        this.socket.on('updateBoard', piecePosition => {
-            console.log("updateBoard");
+        this.socket.on('movePiece', piecePosition => {
+            console.log("movePiece");
             let pieceStart = piecePosition.slice(0,2);
             let pieceEnd = piecePosition.slice(2);
             

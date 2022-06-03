@@ -9,7 +9,8 @@ class Server:
         self.sio = socketio.Server()
         self.app = socketio.WSGIApp(self.sio, static_files={
                 '/': 'projekt/public/index.html',
-                '/projekt/public': 'projekt/public'
+                '/projekt/public': 'projekt/public',
+                '/projekt/three': 'projekt/three'
             })
         self.counter = 1
         self.listOfRooms = {}

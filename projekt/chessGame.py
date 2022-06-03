@@ -31,26 +31,31 @@ class ChessGame:
         move = chess.Move.from_uci(pieceMove)
         
         print("pieceMove: ", pieceMove)
-        # print()
         print(self.board)
         print(self.sio.rooms(sid), "sid:", sid)
         if move in self.board.legal_moves:
-            # self.makeMove(pieceMove, sid, capture=self.capturedPiece(move))
-            self.makeMove(pieceMove, sid, capture=self.board.is_capture(move))
+            self.makeMove(move, sid)
             self.board.push(move)
-            # print(self.board.find_move(chess.parse_square(pieceMove[0:2]), chess.parse_square(pieceMove[2:])))
         else:
             self.repeatMove(sid)
-        # roomNr = self.sio.rooms(sid)
-        # self.sio.emit("updateBoard", pieceStart + "_" + pieceEnd, room=roomNr)
-        # self.sio.emit("unblockMovement", room=roomNr,skip_sid=sid)
-        # self.sio.emit("blockMovement", to=sid)
 
-    def makeMove(self, move, lastMoveSid, capture=False):
-        print(capture)
-        if capture:
-            self.removePiece(move[2:])
-        self.sio.emit("updateBoard", move, room=self.roomNr)
+
+    def makeMove(self, move, lastMoveSid):
+        print(self.board.is_capture(move))
+        if self.board.is_capture(move):
+            if self.board.is_en_passant(move):
+                if lastMoveSid == self.blackPlayerSid:
+                    self.removePiece(chess.square_name(move.to_square)[0] + str(int(chess.square_name(move.to_square)[1])+1))
+                else:
+                    self.removePiece(chess.square_name(move.to_square)[0] + str(int(chess.square_name(move.to_square)[1])-1))
+                    
+            else:
+                self.removePiece(chess.square_name(move.to_square))
+
+        # print(self.board.find_move(chess.parse_square(pieceMove[0:2]), chess.parse_square(pieceMove[2:])))
+
+        print("movePiece:", str(move))
+        self.sio.emit("movePiece", str(move), room=self.roomNr)
         self.sio.emit("blockMovement",to=lastMoveSid)
         self.sio.emit("unblockMovement", room=self.roomNr, skip_sid=lastMoveSid)
 

@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script type="importmap">
+        {
+            "imports": {
+                "THREE": "/projekt/three/build/three.module.js",
+                "/projekt/three/examples/jsm/controls/OrbitControls.js":"/projekt/three/examples/jsm/controls/OrbitControls.js",
+                "/projekt/three/examples/jsm/controls/DragControls.js":"/projekt/three/examples/jsm/controls/DragControls.js",
+            }
+        }
+    </script>
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
     
     <!-- <script src="/public/js/three.js"></script> -->
@@ -38,6 +47,8 @@
 
     <input placeholder="message">
     <button>Send</button>
+
+
 
     <div id = "board">
         <script defer src = "/projekt/public/threeJsViewRS.js" type="module"></script>

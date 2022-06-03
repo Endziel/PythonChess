@@ -1,11 +1,21 @@
-import * as THREE from 'https://cdn.skypack.dev/three@0.129.0/build/three.module.js';
-import { OrbitControls } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/OrbitControls.js';
-import { DragControls } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/DragControls.js';
+// import { createRequire } from "module";
+// const require = createRequire(import.meta.url);
+
+// import * as THREE from 'https://cdn.skypack.dev/three@0.129.0/build/three.module.js';
+// import { OrbitControls } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/OrbitControls.js';
+// import { DragControls } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/DragControls.js';
+// import  BuildBoard  from '/projekt/public/buildBoard.js';
+
+import * as THREE from '/projekt/three/build/three.module.js';
+import { OrbitControls } from '/projekt/three/examples/jsm/controls/OrbitControls.js';
+import { DragControls } from '/projekt/three/examples/jsm/controls/DragControls.js';
 import  BuildBoard  from '/projekt/public/buildBoard.js';
 
 
 
-class ThreeJsView {
+
+
+export class ThreeJsView {
     #width = 1376;
     #height = 768;
     #aspectRatio = this.#width / this.#height;
@@ -367,8 +377,24 @@ class ThreeJsView {
         
     }
 
+    testfun(number){
+        return number + 1;
+    }
+
 } 
 export default ThreeJsView;
+
+if (typeof(exports) !== 'undefined')
+{
+  module.exports = ThreeJsView;
+}
+
+
+
+// if (typeof(exports) !== 'undefined')
+// {
+//   module.exports = ThreeJsView;
+// }
 
 //     // var cameraPosition = new THREE.Vector3(0, 12.9, 12.9);
 

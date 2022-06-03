@@ -1,0 +1,24 @@
+{
+  "name": "chess",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "mocha --reporter list"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Endziel/PythonChess.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Endziel/PythonChess/issues"
+  },
+  "homepage": "https://github.com/Endziel/PythonChess#readme",
+  "devDependencies": {
+    "mocha": "^10.0.0",
+    "three": "^0.129.0"
+  }
+}
