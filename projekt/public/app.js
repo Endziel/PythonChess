@@ -1,6 +1,6 @@
 import  ThreeJsView  from '/projekt/public/threeJsViewRs.js';
 
-class AppClient {
+export class AppClient {
     socket = io('ws://localhost:5555');
 
     Game 
@@ -73,6 +73,8 @@ class AppClient {
     
 
 }
+export default AppClient;
+
 
 let app = new AppClient();
 
