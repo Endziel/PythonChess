@@ -9,7 +9,10 @@ class Server:
         self.sio = socketio.Server()
         self.app = socketio.WSGIApp(self.sio, static_files={
                 '/': 'projekt/public/index.html',
-                '/projekt/public': 'projekt/public'
+                '../../projekt/public': 'projekt/public',
+                '../../projekt/three': 'projekt/three',
+                '/projekt/public': 'projekt/public',
+                '/projekt/three': 'projekt/three'
             })
         self.counter = 1
         self.listOfRooms = {}
@@ -32,6 +35,8 @@ class Server:
                 # if self.counter%2 == 1:
                 #     self.listOfRooms[roomNr].setBlackPlayer(sid);
                 #     self.listOfRooms[roomNr].startGame();
+
+                
 
 
                 if self.counter%2 == 0:
@@ -67,13 +72,6 @@ class Server:
             self.listOfRooms[roomNr].endTurn(sid,pieceMove)
             
 
-
-            
-
-
-
-
-
         
         @self.sio.event
         def disconnect(sid):
@@ -82,10 +80,6 @@ class Server:
 
         
         
-
-
-
-
 if __name__ == '__main__':
     #import eventy
     server = Server()

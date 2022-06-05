@@ -1,7 +1,24 @@
-import * as THREE from 'https://cdn.skypack.dev/three@0.129.0/build/three.module.js';
-import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js';
+// if (typeof(exports) !== 'undefined')
+// {
+//     import * as THREE from '../../projekt/three/build/three.module.js';
+//     import { GLTFLoader } from '../../projekt/three/examples/jsm/loaders/GLTFLoader.js';
+// }
 
-class BuildBoard{
+// import * as THREE from 'https://cdn.skypack.dev/three@0.129.0/build/three.module.js';
+// import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js';
+import * as THREE from '../../projekt/three/build/three.module.js';
+import { GLTFLoader } from '../../projekt/three/examples/jsm/loaders/GLTFLoader.js';
+
+
+// if (typeof require === 'function') // test for nodejs environment
+// {
+// import * as THREE from '../../projekt/three/build/three.module.js';
+// import { GLTFLoader } from '../../projekt/three/examples/jsm/loaders/GLTFLoader.js';
+// }
+
+
+
+export class BuildBoard{
     #SQUARE_SIZE;
     #SQUARE_MESH_IDS = [];
     #SQUARE_POSITIONS_MAP = {};
@@ -32,9 +49,13 @@ class BuildBoard{
         return this.#SQUARE_POSITIONS_MAP;
     }
 
+    get SQUARE_SIZE() {
+        return this.#SQUARE_SIZE;
+    }
+
     buildBoardWithPieces(){
         this.#addPieces();
-        console.log("buildBoardWithPieces");
+        // console.log("buildBoardWithPieces");
         return this.#board;
 
     }
@@ -71,7 +92,7 @@ class BuildBoard{
                 container.add(squareMesh);
             }
         }
-        console.log(this.SQUARE_POSITIONS_MAP);
+        // console.log(this.SQUARE_POSITIONS_MAP);
         
         return container;
 

@@ -1,0 +1,30 @@
+{
+  "name": "chess",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "mocha --reporter list --timeout 10000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Endziel/PythonChess.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Endziel/PythonChess/issues"
+  },
+  "homepage": "https://github.com/Endziel/PythonChess#readme",
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "^10.0.0",
+    "three": "^0.129.0"
+  },
+  "dependencies": {
+    "chai": "^4.3.6",
+    "jsdom": "^19.0.0",
+    "path": "^0.12.7"
+  }
+}

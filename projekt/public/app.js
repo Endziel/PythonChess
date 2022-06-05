@@ -1,6 +1,6 @@
 import  ThreeJsView  from '/projekt/public/threeJsViewRs.js';
 
-class AppClient {
+export class AppClient {
     socket = io('ws://localhost:5555');
 
     Game 
@@ -48,8 +48,8 @@ class AppClient {
             this.Game.unblockPieces();
         });
         
-        this.socket.on('updateBoard', piecePosition => {
-            console.log("updateBoard");
+        this.socket.on('movePiece', piecePosition => {
+            console.log("movePiece");
             let pieceStart = piecePosition.slice(0,2);
             let pieceEnd = piecePosition.slice(2);
             
@@ -73,6 +73,8 @@ class AppClient {
     
 
 }
+export default AppClient;
+
 
 let app = new AppClient();
 
