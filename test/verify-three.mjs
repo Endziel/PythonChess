@@ -72,24 +72,24 @@ describe('The BuildBoarClass', function(){
 
 })
 
-const options = {
-  resources: 'usable',
-  runScripts: 'dangerously',
-  pretendToBeVisual: true,
-};
+// const options = {
+//   resources: 'usable',
+//   runScripts: 'dangerously',
+//   pretendToBeVisual: true,
+// };
 
-describe('Load HTML file', () => {
-    it('Checkboxes should be an array', (done) => {
-      JSDOM.fromFile('projekt/public/index.html', options).then(dom => {
-        console.log(dom.window.document);
-        let threejsview = new ThreeJsView('white', '', dom.window.document); 
-        // assert.equal(0, 1);
-        let board = dom.window.document.querySelector('#board');
+// describe('Load HTML file', () => {
+//     it('Checkboxes should be an array', (done) => {
+//       JSDOM.fromFile('projekt/public/index.html', options).then(dom => {
+//         console.log(dom.window.document);
+//         let threejsview = new ThreeJsView('white', '', dom.window.document); 
+//         // assert.equal(0, 1);
+//         let board = dom.window.document.querySelector('#board');
         
-        console.log(board);
-      }).then(done, done);
-  });
-});
+//         console.log(board);
+//       }).then(done, done);
+//   });
+// });
 
 // describe('component.js', (done) => {
 //   beforeEach(function(done) {
