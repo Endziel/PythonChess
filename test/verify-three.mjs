@@ -66,7 +66,7 @@ describe('The BuildBoarClass', function(){
     })
 
     it('dummy', function(){
-      assert.equal(1,1);
+      assert.equal(2,2);
     })
 
 
