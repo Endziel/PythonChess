@@ -18,7 +18,7 @@ class Server:
         self.listOfRooms = {}
         self.counter_lock = threading.Lock()
         self.call_backs()
-        eventlet.wsgi.server(eventlet.listen(('', 5555)), self.app)
+        eventlet.wsgi.server(eventlet.listen(('', 8000)), self.app)
 
     def call_backs(self):
         @self.sio.event
