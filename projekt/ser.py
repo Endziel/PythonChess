@@ -59,25 +59,32 @@ class Server:
 
         @self.sio.event
         def endTurn(sid, pieceMove):
-            rooms = self.sio.rooms(sid)
-            # indexOfArray = rooms.index("chess")
-            roomNr = ""
-            for room in rooms:
-                if room.startswith("chess"):
-                    roomNr = room
-                    break
-                
-            # print(self.sio.rooms[indexOfArray])
-            print(roomNr)
+            roomNr = self.getRoomNumber(sid)
             self.listOfRooms[roomNr].endTurn(sid,pieceMove)
             
 
-        
+        @self.sio.event
+        def endPromotion(sid, pieceMove):
+            roomNr = self.getRoomNumber(sid)
+            self.listOfRooms[roomNr].endPromotion(pieceMove, sid)
+
         @self.sio.event
         def disconnect(sid):
             print('disconnect ', sid)
             self.sio.leave_room(sid, 'chess')
 
+    def getRoomNumber(self, sid):
+        rooms = self.sio.rooms(sid)
+        # indexOfArray = rooms.index("chess")
+        roomNr = ""
+        for room in rooms:
+            if room.startswith("chess"):
+                roomNr = room
+                break
+            
+        # print(self.sio.rooms[indexOfArray])
+        print(roomNr)
+        return roomNr
         
         
 if __name__ == '__main__':
