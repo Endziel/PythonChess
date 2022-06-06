@@ -1,7 +1,7 @@
 import  ThreeJsView  from '/projekt/public/threeJsViewRs.js';
 
 export class AppClient {
-    socket = io('ws://localhost:5555');
+    socket = io('ws://localhost:8000');
 
     Game 
 
