@@ -51,7 +51,7 @@ export class AppClient {
         this.socket.on('movePiece', piecePosition => {
             console.log("movePiece");
             let pieceStart = piecePosition.slice(0,2);
-            let pieceEnd = piecePosition.slice(2);
+            let pieceEnd = piecePosition.slice(2, 4);
             
             this.Game.changePiecePosition(pieceStart, pieceEnd);
         });
@@ -60,6 +60,12 @@ export class AppClient {
             console.log("removePiece");
             
             this.Game.removePiece(piecePosition);
+        });
+
+        this.socket.on('promotePiece', move => {
+            console.log("promotePiece");
+            
+            this.Game.choosePromotionPiece(move);
         });
     
     

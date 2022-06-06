@@ -370,6 +370,38 @@ export class ThreeJsView {
 
     }
 
+    choosePromotionPiece(move) {
+        let canvas = document.querySelector("canvas");
+        let buttons = {
+            "Queen": 'q',
+            "Rook": 'r',
+            "Knight": 'n',
+            "Bishop": 'b'
+        }
+        
+        let buttonsContainer = document.createElement("div");
+        buttonsContainer.style.position = 'absolute';
+        
+        
+        for (let [name, value] of Object.entries(buttons)) {
+            let button = document.createElement("button");
+            button.innerHTML = name;
+            button.value = value;
+            button.addEventListener("click", () => pickPromotionPiece(this))
+            buttonsContainer.appendChild(button);
+        }
+        
+        buttonsContainer.style.left = '50%';
+        buttonsContainer.style.top = '0';
+        buttonsContainer.style.transform = 'translate(-50%, 0)';
+        document.body.appendChild(buttonsContainer);
+
+        function pickPromotionPiece(self) {
+            console.log("MOVE: ", move, "BUTTON.VALUE: ", this.value);
+            self.socket.emit("endPromotion", move.slice(0, 4) + this.value);
+        }
+    }
+
     removePiece(piecePosition) {
         let piece = this.container.getObjectByName(piecePosition).children[0];
     
