@@ -26,6 +26,9 @@ export class ThreeJsView {
     #dragControls
     #socket
     #myPieces
+    #isTimerPaused
+    #timeLeft  // in seconds
+    #timerId
     // #orbitControls
     
 
@@ -56,6 +59,11 @@ export class ThreeJsView {
         this.#addControls(myPieces);
         // this.render();
 
+        this.#addTimer();
+        this.#isTimerPaused = true;
+        this.#timeLeft = 120;
+        
+
         const axesHelper = new THREE.AxesHelper( 5 );
             this.scene.add( axesHelper );
 
@@ -85,6 +93,13 @@ export class ThreeJsView {
         return this.#myPieces;
     }
 
+    get isTimerPaused() {
+        return this.#isTimerPaused;
+    }
+
+    get timerId() {
+        return this.#timerId;
+    }
 
     #createCamera(positionY, positionZ){
         var fov = 65;
@@ -294,6 +309,12 @@ export class ThreeJsView {
         }
         
     }
+
+    #addTimer() {
+        let timerContainer = document.createElement("div");
+        timerContainer.classList.add("timer-container");
+        document.body.appendChild(timerContainer);
+    }
     render() {
         requestAnimationFrame(() => this.render());
         this.renderer.render(this.#scene, this.#camera);
@@ -468,6 +489,42 @@ export class ThreeJsView {
 
         document.body.appendChild(buttonAccept);
         document.body.appendChild(buttonDecline);
+    }
+
+    startTimer() {
+        this.#timerId = setInterval(() => this.calcTime(this), 1000); 
+    }
+
+    calcTime(self) {
+        if (!self.isTimerPaused) {
+            if (self.#timeLeft < 0) {
+                clearInterval(self.timerId);
+                self.socket.emit("timeEnd");
+            }
+
+            console.log("calcTime")
+            console.log(self.#timeLeft)
+            var hours = Math.floor(self.#timeLeft  / 3600);
+            var minutes = Math.floor(self.#timeLeft  % 3600 / 60);
+            var seconds = Math.floor(self.#timeLeft  % 3600 % 60);
+          
+            // Display the result in the element with id="demo"
+            document.querySelector(".timer-container").innerHTML = hours + ":" + minutes + ":" + seconds;
+          
+            // If the count down is finished, write some text
+            
+    
+            self.#timeLeft -= 1;
+        }
+        
+    }
+
+    pauseTimer() {
+        this.#isTimerPaused = true;
+    }
+
+    unpauseTimer() {
+        this.#isTimerPaused = false;
     }
 
     testfun(number){

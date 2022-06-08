@@ -24,3 +24,11 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+.timer-container {
+    font-size: 2rem;
+    position: absolute;
+    top: 10%;
+    right: 10%;
+    font-weight: bold;
+}

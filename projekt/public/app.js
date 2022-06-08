@@ -22,6 +22,8 @@ export class AppClient {
         this.socket.on('startGameWhite', text => {
             this.Game = new ThreeJsView(text, this.socket);
             this.Game.render();
+            this.Game.startTimer();
+            this.Game.unpauseTimer();
     
             const el = document.createElement('li');
             el.innerHTML = text;
@@ -35,6 +37,7 @@ export class AppClient {
             this.Game = new ThreeJsView(text, this.socket);
             this.Game.blockPieces();
             this.Game.render();
+            this.Game.startTimer();
     
             const el = document.createElement('li');
             el.innerHTML = text;
@@ -43,10 +46,12 @@ export class AppClient {
     
         this.socket.on('blockMovement', () => {
             this.Game.blockPieces();
+            this.Game.pauseTimer();
         });
 
         this.socket.on('unblockMovement', () => {
             this.Game.unblockPieces();
+            this.Game.unpauseTimer();
         });
         
         this.socket.on('movePiece', piecePosition => {

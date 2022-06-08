@@ -83,6 +83,11 @@ class Server:
             self.listOfRooms[roomNr].draw(sid, answer)
 
         @self.sio.event
+        def timeEnd(sid):
+            roomNr = self.getRoomNumber(sid)
+            self.listOfRooms[roomNr].timeEnd(sid)
+
+        @self.sio.event
         def disconnect(sid):
             print('disconnect ', sid)
             self.sio.leave_room(sid, 'chess')

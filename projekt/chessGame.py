@@ -136,6 +136,11 @@ class ChessGame:
             else:
                 self.sio.emit("unblockMovement", to=self.blackPlayerSid)
     
+    def timeEnd(self, playerSid):
+        self.sio.emit("message", "YOUR TIME IS UP", to=playerSid)
+        self.sio.emit("message", "OPPONENT TIME IS UP", skip_sid=playerSid)
+        self.sio.emit("blockMovement", room=self.roomNr)
+
     def checkGameOver(self):
         # checkmate
         if self.board.is_checkmate():
