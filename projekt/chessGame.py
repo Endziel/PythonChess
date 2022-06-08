@@ -35,6 +35,7 @@ class ChessGame:
         if move in self.board.legal_moves:
             self.makeMove(move, sid)
             self.board.push(move)
+            self.checkGameOver()
         else:
             if chess.Move.from_uci(pieceMove + 'q') in self.board.legal_moves:  # check for possible promotion
                 # TODO: ask player for piece
@@ -94,18 +95,85 @@ class ChessGame:
         self.sio.emit("promotePiece", str(move), to=lastMoveSid)
     
     def endPromotion(self, move, lastMoveSid):
-        if lastMoveSid == self.whitePlayerSid:
-            move = move[0:4] + move[4].upper()
-        else:
-            move = move[0:4] + move[4].lower()
+        move = move[0:4] + move[4].lower()
         move = chess.Move.from_uci(move)
+
+        if self.board.is_capture(move):
+            self.removePiece(chess.square_name(move.to_square))
+
         self.board.push(move)
-        self.sio.emit("movePiece", str(move), room=self.roomNr)
+        self.checkGameOver()
+
+        self.removePiece(chess.square_name(move.from_square)) # removing pawn which was promoted
+        self.sio.emit("addPromotedPiece", {
+            "position": chess.square_name(move.to_square), 
+            "pieceSymbol": move.uci()[-1], 
+            "color": "white" if lastMoveSid == self.whitePlayerSid else "black"}, 
+            room=self.roomNr)
         self.sio.emit("blockMovement",to=lastMoveSid)
         self.sio.emit("unblockMovement", room=self.roomNr, skip_sid=lastMoveSid)
 
     def removePiece(self, piecePosition):
         self.sio.emit("removePiece", piecePosition, room=self.roomNr)
+
+    def resign(self, resigningPlayerSid):
+        self.sio.emit("message", 'RESIGNED', room=self.roomNr, to=resigningPlayerSid)
+        self.sio.emit("message", 'YOUR OPPONENT HAS RESIGNED.', room=self.roomNr, skip_sid=resigningPlayerSid)
+        self.sio.emit("blockMovement", room=self.roomNr)
+
+
+    def drawProposal(self, playerSid):
+        self.sio.emit("drawProposal", room=self.roomNr, skip_sid=playerSid)
+        self.sio.emit("blockMovement", room=self.roomNr)
+
+    def draw(self, playerSid, answer):
+        if answer:
+            self.sio.emit("message", 'DRAW', room=self.roomNr)
+        else:
+            self.sio.emit("message", 'Opponent didn\'t accept draw', room=self.roomNr, skip_sid=playerSid)
+            if self.board.turn == chess.WHITE:
+                self.sio.emit("unblockMovement", to=self.whitePlayerSid)
+            else:
+                self.sio.emit("unblockMovement", to=self.blackPlayerSid)
+    
+    def checkGameOver(self):
+        # checkmate
+        if self.board.is_checkmate():
+            self.sio.emit("blockMovement", room=self.roomNr)
+            self.sio.emit("message", 'CHECKMATE', room=self.roomNr)
+        
+        # resignation
+        
+
+
+        # timeout
+
+
+
+        # stalemate
+        if self.board.is_stalemate():
+            self.sio.emit("blockMovement", room=self.roomNr)
+            self.sio.emit("message", 'STALEMATE', room=self.roomNr)
+
+        # insufficient material
+        if self.board.is_insufficient_material():
+            self.sio.emit("blockMovement", room=self.roomNr)
+            self.sio.emit("message", 'INSUFFICIENT MATERIAL', room=self.roomNr)
+        
+        # 50 move rule This allows either of the player to ask for a draw if there is no capture that has been made or any of the paws haven’t moved since the past 50 moves.
+        if self.board.is_fifty_moves():
+            pass
+            # TODO: add emit which asks player for draw
+            # self.sio.emit("blockMovement", room=self.roomNr)
+            # self.sio.emit("message", 'CHECKMATE', room=self.roomNr)
+
+        # repetition
+        if self.board.is_repetition():
+            self.sio.emit("blockMovement", room=self.roomNr)
+            self.sio.emit("message", 'REPETITION', room=self.roomNr)
+
+        # agreement 
+        # one player asks for draw
 
     def repeatMove(self,lastMoveSid):
         self.sio.emit("unblockMovement", to=lastMoveSid)

@@ -129,6 +129,40 @@ export class BuildBoard{
     //     this.#figures.push(mesh);
     // }
 
+    async addPiece(position, pieceSymbol, color) {
+        
+        let symbolToName = {
+            'k': 'king',
+            'q': 'queen',
+            'r': 'rook',
+            'n': 'knight',
+            'b': 'bishop',
+            'p': 'pawn'
+        }
+        let url;
+        if (color == 'white') {
+            url = '/projekt/public/objects/' + symbolToName[pieceSymbol] + '.glb';
+        } else {
+            url = '/projekt/public/objects/b_' + symbolToName[pieceSymbol] + '.glb';
+        }
+
+        const loader = new GLTFLoader();
+        let gltf = await loader.loadAsync(url);
+        let piece = gltf.scene.children[0];
+        piece.name = symbolToName[pieceSymbol];
+
+        let pieceMesh = piece.children[0];
+        pieceMesh.material.color.set('#fff');
+        piece.position.setY(0);
+        this.#board.getObjectByName(position).add(piece);
+        
+        if (color == 'white') {
+            this.#whiteFigures.push(piece);
+        } else {
+            this.#blackFigures.push(piece);
+        }
+    }
+
     async #addPieces() {
         let whitePiecesPositions = ['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'];
         let blackPiecesPositions = ['a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8', 'a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7'];

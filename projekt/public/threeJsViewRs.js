@@ -12,8 +12,8 @@ import { DragControls } from '../../projekt/three/examples/jsm/controls/DragCont
 import  BuildBoard  from '../../projekt/public/buildBoard.js';
 
 export class ThreeJsView {
-    #width = 1376;
-    #height = 768;
+    #width = window.innerWidth;
+    #height = window.innerHeight;
     #aspectRatio = this.#width / this.#height;
     // #fov = 65;
     // #nearClip = 0.1;
@@ -25,6 +25,7 @@ export class ThreeJsView {
     #renderer;
     #dragControls
     #socket
+    #myPieces
     // #orbitControls
     
 
@@ -35,9 +36,11 @@ export class ThreeJsView {
             this.#camera = this.#createCamera(12.9, -12.9);
         }
 
-        if (testDocument != undefined) {
-            document = testDocument;
-        }
+        this.#myPieces = myPieces
+
+        // if (testDocument != undefined) {
+        //     document = testDocument;
+        // }
 
         this.#socket = socket;
 
@@ -76,6 +79,10 @@ export class ThreeJsView {
 
     get socket() {
         return this.#socket;
+    }
+
+    get myPieces() {
+        return this.#myPieces;
     }
 
 
@@ -309,7 +316,7 @@ export class ThreeJsView {
         this.scene.updateMatrixWorld();
         let piece = this.container.getObjectByName(previous).children[0];
         
-        
+        console.log("changePiecePosition->dragControls: ", this.#dragControls.getObjects());
         // this.scene.attach(piece);
         // await this.sleep(1000);
         // console.log("test1");
@@ -387,7 +394,7 @@ export class ThreeJsView {
             let button = document.createElement("button");
             button.innerHTML = name;
             button.value = value;
-            button.addEventListener("click", () => pickPromotionPiece(this))
+            button.addEventListener("click", (event) => pickPromotionPiece(event, this, move))
             buttonsContainer.appendChild(button);
         }
         
@@ -396,18 +403,71 @@ export class ThreeJsView {
         buttonsContainer.style.transform = 'translate(-50%, 0)';
         document.body.appendChild(buttonsContainer);
 
-        function pickPromotionPiece(self) {
-            console.log("MOVE: ", move, "BUTTON.VALUE: ", this.value);
-            self.socket.emit("endPromotion", move.slice(0, 4) + this.value);
+        function pickPromotionPiece(event, self, move) {
+            let button = event.target
+            console.log("MOVE: ", move, "BUTTON.VALUE: ", button.value);
+            self.socket.emit("endPromotion", move.slice(0, 4) + button.value);
         }
+    }
+
+    async addPromotedPiece(position, pieceSymbol, color) {
+        await this.#board.addPiece(position, pieceSymbol, color);
+
+        let piece = this.container.getObjectByName(position).children[0];
+        
+
+        console.log("addPromotedPiece->dragControls: ", this.#dragControls.getObjects());
+        if (this.#myPieces === color) {
+            console.log("COLOR:", color);
+            console.log("BEFORE DRAGCONTROL UPDATE:", this.#dragControls.getObjects());
+            console.log(piece)
+            this.#dragControls.getObjects().push(piece);
+            console.log("AFTER DRAGCONTROL UPDATE:", this.#dragControls.getObjects());
+        }
+        // add to controls
     }
 
     removePiece(piecePosition) {
         let piece = this.container.getObjectByName(piecePosition).children[0];
     
-        piece.parent.remove(piece);
-        console.log(this.#dragControls.getObjects().splice(this.#dragControls.getObjects().indexOf(piece),1));
+        console.log('piece');
+        console.log(piece);
+        let indexInArray = this.#dragControls.getObjects().findIndex(ele => ele.uuid === piece.uuid);
+
+        if (indexInArray != -1) {
+            console.log(this.#dragControls.getObjects().splice(indexInArray,1));
+        }
         
+        piece.parent.remove(piece);
+
+        // console.log(this.#dragControls.getObjects().splice(this.#dragControls.getObjects().indexOf(piece),1));
+        
+        
+    }
+
+    drawProposal() {
+        let buttonAccept = document.createElement("button");
+        buttonAccept.innerHTML = "ACCEPT DRAW";
+        buttonAccept.setAttribute("id", "btn-draw-accept");
+
+        let buttonDecline = document.createElement("button");
+        buttonDecline.innerHTML = "DECLINE DRAW";
+        buttonDecline.setAttribute("id", "btn-draw-decline");
+
+        buttonAccept.onclick = () => {
+            document.querySelector("#btn-draw-accept").remove();
+            document.querySelector("#btn-draw-decline").remove();
+            this.socket.emit('draw', true)
+        }
+
+        buttonDecline.onclick = () => {
+            document.querySelector("#btn-draw-accept").remove();
+            document.querySelector("#btn-draw-decline").remove();
+            this.socket.emit('draw', false)
+        }
+
+        document.body.appendChild(buttonAccept);
+        document.body.appendChild(buttonDecline);
     }
 
     testfun(number){

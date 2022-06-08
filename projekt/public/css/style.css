@@ -1,0 +1,26 @@
+.cursor-none {
+    cursor: none !important;
+}
+
+.cursor-on {
+    cursor: auto;
+}
+
+body {
+    display: flex;
+    position: relative;
+}
+
+#btn-draw-accept {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#btn-draw-decline {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

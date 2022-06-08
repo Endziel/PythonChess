@@ -1,7 +1,6 @@
 import eventlet
 import socketio
 import threading
-from room import Room
 from chessGame import ChessGame
 
 class Server:
@@ -69,9 +68,29 @@ class Server:
             self.listOfRooms[roomNr].endPromotion(pieceMove, sid)
 
         @self.sio.event
+        def resign(sid):
+            roomNr = self.getRoomNumber(sid)
+            self.listOfRooms[roomNr].resign(sid)
+
+        @self.sio.event
+        def drawProposal(sid):
+            roomNr = self.getRoomNumber(sid)
+            self.listOfRooms[roomNr].drawProposal(sid)
+
+        @self.sio.event
+        def draw(sid, answer):
+            roomNr = self.getRoomNumber(sid)
+            self.listOfRooms[roomNr].draw(sid, answer)
+
+        @self.sio.event
         def disconnect(sid):
             print('disconnect ', sid)
             self.sio.leave_room(sid, 'chess')
+
+        @self.sio.event
+        def message(sid, text):
+            roomNr = self.getRoomNumber(sid)
+            self.sio.emit("message", text, room=roomNr)
 
     def getRoomNumber(self, sid):
         rooms = self.sio.rooms(sid)

@@ -67,14 +67,48 @@ export class AppClient {
             
             this.Game.choosePromotionPiece(move);
         });
+
+        this.socket.on('addPromotedPiece', pieceData => {
+            console.log("addPromotedPiece");
+
+            let position = pieceData['position'];
+            let pieceSymbol = pieceData['pieceSymbol'];
+            let color = pieceData['color'];
+            this.Game.addPromotedPiece(position, pieceSymbol, color);
+        })
     
-    
-        document.querySelector('button').onclick = () => {
+        this.socket.on('drawProposal', () => {
+            console.log("drawProposal");
+            this.Game.drawProposal();
+        })
+
+
+        document.querySelector('#btn-send').onclick = () => {
     
             const text = document.querySelector('input').value;
-            this.socket.emit('message', text)
+            this.socket.emit('message', text);
+            document.querySelector('input').value = "";
             
         }
+
+        document.querySelector('#btn-resign').onclick = () => {
+            this.socket.emit('resign')
+            
+        }
+
+        document.querySelector('#btn-draw').onclick = () => {
+            this.socket.emit('drawProposal')
+        }
+
+        // document.querySelector('#btn-draw-accept').onclick = () => {
+        //     this.socket.emit('draw', true)
+        // }
+
+        // document.querySelector('#btn-draw-decline').onclick = () => {
+        //     this.socket.emit('draw', false)
+        // }
+
+
     }
     
 
