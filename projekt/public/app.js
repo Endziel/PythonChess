@@ -11,12 +11,23 @@ export class AppClient {
     }
 
     init() {
-        this.socket.on('message', text => {
+        this.socket.on('message', data => {
 
-            const el = document.createElement('li');
-            el.innerHTML = text;
-            document.querySelector('ul').appendChild(el)
+            const el = document.createElement('p');
+            el.innerHTML = data['text'];
+            
+
+            if (data['from'] == "me") {
+                el.classList.add("my-message");
+            } else if (data['from'] == "opponent") {
+                el.classList.add("opponent-message");
+            } else {
+                el.classList.add("game-info-message");
+            }
     
+            let container = document.querySelector('.messages-container');
+            container.appendChild(el);
+            container.scrollTop = container.scrollHeight;
         });
     
         this.socket.on('startGameWhite', data => {
@@ -25,10 +36,10 @@ export class AppClient {
             this.Game.startTimer();
             this.Game.unpauseTimer();
             
-            const el = document.createElement('li');
+            const el = document.createElement('p');
             el.innerHTML = data['text'];
-            document.querySelector('ul').appendChild(el)
-            // this.Game.render();
+            el.classList.add("game-info-message");
+            document.querySelector('.messages-container').appendChild(el);
     
         });
     
@@ -39,9 +50,10 @@ export class AppClient {
             this.Game.render();
             this.Game.startTimer();
     
-            const el = document.createElement('li');
+            const el = document.createElement('p');
             el.innerHTML = data['text'];
-            document.querySelector('ul').appendChild(el)
+            el.classList.add("game-info-message");
+            document.querySelector('.messages-container').appendChild(el)
         });
     
         this.socket.on('blockMovement', () => {
@@ -89,12 +101,15 @@ export class AppClient {
         })
 
 
-        document.querySelector('#btn-send').onclick = () => {
+        document.querySelector('input').onkeyup = (e) => {
     
             const text = document.querySelector('input').value;
-            this.socket.emit('message', text);
-            document.querySelector('input').value = "";
-            
+            if (e.key === "Enter") {
+                if (text.trim() != "") {
+                    this.socket.emit('message', text);
+                }
+                document.querySelector('input').value = "";
+            }
         }
 
         document.querySelector('#btn-resign').onclick = () => {

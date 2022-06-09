@@ -123,8 +123,8 @@ class ChessGame:
         self.sio.emit("removePiece", piecePosition, room=self.roomNr)
 
     def resign(self, resigningPlayerSid):
-        self.sio.emit("message", 'RESIGNED', room=self.roomNr, to=resigningPlayerSid)
-        self.sio.emit("message", 'YOUR OPPONENT HAS RESIGNED.', room=self.roomNr, skip_sid=resigningPlayerSid)
+        self.sio.emit("message", {'text': 'RESIGNED'}, room=self.roomNr, to=resigningPlayerSid)
+        self.sio.emit("message", {'text': 'YOUR OPPONENT HAS RESIGNED.'}, room=self.roomNr, skip_sid=resigningPlayerSid)
         self.sio.emit("blockMovement", room=self.roomNr)
 
 
@@ -134,24 +134,24 @@ class ChessGame:
 
     def draw(self, playerSid, answer):
         if answer:
-            self.sio.emit("message", 'DRAW', room=self.roomNr)
+            self.sio.emit("message", {'text': 'DRAW'}, room=self.roomNr)
         else:
-            self.sio.emit("message", 'Opponent didn\'t accept draw', room=self.roomNr, skip_sid=playerSid)
+            self.sio.emit("message", {'text': 'Opponent didn\'t accept draw'}, room=self.roomNr, skip_sid=playerSid)
             if self.board.turn == chess.WHITE:
                 self.sio.emit("unblockMovement", self.getLegalMoves(), to=self.whitePlayerSid)
             else:
                 self.sio.emit("unblockMovement", self.getLegalMoves(), to=self.blackPlayerSid)
     
     def timeEnd(self, playerSid):
-        self.sio.emit("message", "YOUR TIME IS UP", to=playerSid)
-        self.sio.emit("message", "OPPONENT TIME IS UP", skip_sid=playerSid)
+        self.sio.emit("message", {'text': "YOUR TIME IS UP"}, to=playerSid)
+        self.sio.emit("message", {'text': "OPPONENT TIME IS UP"}, skip_sid=playerSid)
         self.sio.emit("blockMovement", room=self.roomNr)
 
     def checkGameOver(self):
         # checkmate
         if self.board.is_checkmate():
             self.sio.emit("blockMovement", room=self.roomNr)
-            self.sio.emit("message", 'CHECKMATE', room=self.roomNr)
+            self.sio.emit("message", {'text': 'CHECKMATE'}, room=self.roomNr)
         
         # resignation
         
@@ -164,12 +164,12 @@ class ChessGame:
         # stalemate
         if self.board.is_stalemate():
             self.sio.emit("blockMovement", room=self.roomNr)
-            self.sio.emit("message", 'STALEMATE', room=self.roomNr)
+            self.sio.emit("message", {'text': 'STALEMATE'}, room=self.roomNr)
 
         # insufficient material
         if self.board.is_insufficient_material():
             self.sio.emit("blockMovement", room=self.roomNr)
-            self.sio.emit("message", 'INSUFFICIENT MATERIAL', room=self.roomNr)
+            self.sio.emit("message", {'text': 'INSUFFICIENT MATERIAL'}, room=self.roomNr)
         
         # 50 move rule This allows either of the player to ask for a draw if there is no capture that has been made or any of the paws haven’t moved since the past 50 moves.
         if self.board.is_fifty_moves():
@@ -181,7 +181,7 @@ class ChessGame:
         # repetition
         if self.board.is_repetition():
             self.sio.emit("blockMovement", room=self.roomNr)
-            self.sio.emit("message", 'REPETITION', room=self.roomNr)
+            self.sio.emit("message", {'text': 'REPETITION'}, room=self.roomNr)
 
         # agreement 
         # one player asks for draw

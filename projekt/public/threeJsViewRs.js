@@ -52,6 +52,7 @@ export class ThreeJsView {
         
         this.#scene.add(this.#container);
 
+        this.#addBackground();
         this.#addAmbientLight(0.45, 0xFFFFFF);
         this.#addDirectionalLight(new THREE.Vector3(30, 15, -17), 1.75, 0xFFFFFF, 50);
         this.#addControls(myPieces);
@@ -117,6 +118,15 @@ export class ThreeJsView {
 
     }
     
+    #addBackground() {
+        const loader = new THREE.TextureLoader();
+        loader.load('https://images.pexels.com/photos/2246476/pexels-photo-2246476.jpeg' , (texture) => onLoad(texture, this));
+        
+        function onLoad(texture, self) {
+            self.#scene.background = texture; 
+        }
+    }
+
     #setRenderer() {
         var renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.setSize(this.#width, this.#height);
@@ -130,6 +140,7 @@ export class ThreeJsView {
         console.log("setRenderer");
         return renderer;
     }
+
     #addAmbientLight(intensity, color) {
         var ambientLight = new THREE.AmbientLight(color, intensity);
 

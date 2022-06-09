@@ -118,11 +118,11 @@ export class BuildBoard{
 
                 font: this.#font,
 
-                size: 1,
+                size: 0.5,
                 height: 0.001,
                 curveSegments: 12,
 
-                bevelThickness: 0.3,
+                bevelThickness: 0.1,
                 bevelSize: 0.05,
                 bevelEnabled: true
 
@@ -133,14 +133,14 @@ export class BuildBoard{
             console.log(textGeo);
             var mesh = new THREE.Mesh( textGeo, textMaterial );
 
-            mesh.position.set(-9, 0, tz);
+            mesh.position.set(-9, 0, tz+0.25);
             mesh.rotation.set(-Math.PI / 3, 0, 0);
             // console.log(this.#board.parent)
             this.#board.add(mesh);
 
             var mesh = new THREE.Mesh( textGeo, textMaterial );
 
-            mesh.position.set(9, 0, tz);
+            mesh.position.set(9, 0, tz-0.25);
             mesh.rotation.set(Math.PI / 3, Math.PI, 0);
             // console.log(this.#board.parent)
             this.#board.add(mesh);
@@ -153,11 +153,11 @@ export class BuildBoard{
 
                 font: this.#font,
 
-                size: 1,
+                size: 0.5,
                 height: 0.001,
                 curveSegments: 12,
 
-                bevelThickness: 0.3,
+                bevelThickness: 0.1,
                 bevelSize: 0.05,
                 bevelEnabled: true
 
@@ -175,7 +175,7 @@ export class BuildBoard{
 
             var mesh = new THREE.Mesh( textGeo, textMaterial );
 
-            mesh.position.set(tx-0.25, 0, -9.5);
+            mesh.position.set(tx+0.25, 0, -9.5);
             mesh.rotation.set(Math.PI / 3, Math.PI, 0);
             // console.log(this.#board.parent)
             this.#board.add(mesh);

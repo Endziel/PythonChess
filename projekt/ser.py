@@ -45,7 +45,7 @@ class Server:
                     self.listOfRooms[roomNr].setBlackPlayer(sid)
                     self.sio.emit("startGameWhite", {'text': "white", 'legalMoves': self.listOfRooms[roomNr].getLegalMoves()}, to=self.listOfRooms[roomNr].getWhitePlayerSid())
                     self.sio.emit("startGameBlack", {'text': "black", 'legalMoves': None}, to=self.listOfRooms[roomNr].getBlackPlayerSid())
-                    self.sio.emit("message", roomNr, room=roomNr)
+                    self.sio.emit("message", {'text': roomNr}, room=roomNr)
 
 
                     # self.sio.emit("startGameWhite", "white", room='chess' + str(self.counter//2),skip_sid=sid)
@@ -95,7 +95,8 @@ class Server:
         @self.sio.event
         def message(sid, text):
             roomNr = self.getRoomNumber(sid)
-            self.sio.emit("message", text, room=roomNr)
+            self.sio.emit("message", {'text': text, 'from': 'me'}, room=roomNr, to=sid)
+            self.sio.emit("message", {'text': text, 'from': 'opponent'}, room=roomNr, skip_sid=sid)
 
     def getRoomNumber(self, sid):
         rooms = self.sio.rooms(sid)

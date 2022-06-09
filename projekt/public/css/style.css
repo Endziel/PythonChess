@@ -6,9 +6,25 @@
     cursor: auto;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+    padding: 0;
+    margin: 0;
+}
+
 body {
-    display: flex;
     position: relative;
+    overflow: hidden;
+}
+
+#board canvas {
+    width: 100vw !important;
+    height: 100vh !important;
 }
 
 #btn-draw-accept {
@@ -25,6 +41,106 @@ body {
     transform: translate(-50%, -50%);
 }
 
+.chat-container {
+    position: absolute;
+    bottom: 2rem;
+    right: 0;
+    width: 20vw;
+    min-width: 10rem;
+    height: 40vh;
+    min-height: 8rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    color: white;
+    font-family: "Open Sans", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: space-between;
+    overflow: hidden;
+
+}
+
+.chat-container .messages-container {
+  display: flex;
+  height: 80%;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.chat-container p {
+  display: block;
+  padding: .5rem;
+  border-radius: .5em;
+  margin: 0.1em 0;
+  width: 100%;
+  overflow-wrap: break-word;
+}
+
+.opponent-message {
+  background: linear-gradient(120deg, #ED213A55, #93291E55);
+}
+
+.my-message {
+  background: linear-gradient(120deg, #248a5255, #25728755);
+  text-align: right;
+}
+
+
+.game-info-message {
+  text-align: center;
+  font-weight: bold;
+  font-style: italic;
+  background-color: #0008;
+}
+
+.chat-buttons{
+  display: flex;
+  flex-direction: column;
+}
+
+.proposal-buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.proposal-buttons button{
+  display: flex;
+  justify-content: center;
+  margin-bottom: .5em;
+  border-radius: 5px;
+  padding: 0.4em;
+  font-family: "Open Sans", sans-serif;
+}
+
+.proposal-buttons button:hover{
+  cursor: pointer;
+}
+
+#btn-draw{
+  background-color: gold;
+}
+
+#btn-resign {
+  background-color: red;
+}
+
+.send-box input {
+  width: 100%;
+  /* background: linear-gradient(120deg, #248a52, #257287); */
+  background-color: #0005;
+  color: #fffd;
+  border-radius: 5px;
+  padding: 0.5em 0.3em;
+}
+
+.send-box input::placeholder {
+  color: #fff8;
+}
+
+
+
 .timer-container {
     font-size: 2rem;
     position: absolute;
@@ -32,3 +148,36 @@ body {
     right: 10%;
     font-weight: bold;
 }
+
+
+
+
+
+
+
+
+
+/* width */
+::-webkit-scrollbar {
+  width: 5px;
+
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  /* background: #f1f1f1; */
+  background-color: white;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 20px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+  
+ 
