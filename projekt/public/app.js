@@ -49,7 +49,7 @@ export class AppClient {
             this.Game.blockPieces();
             this.Game.render();
             this.Game.startTimer();
-    
+
             const el = document.createElement('p');
             el.innerHTML = data['text'];
             el.classList.add("game-info-message");

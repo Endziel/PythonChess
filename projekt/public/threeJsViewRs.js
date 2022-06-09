@@ -526,6 +526,7 @@ export class ThreeJsView {
     }
 
     startTimer() {
+        this.displayTime(this);
         this.#timerId = setInterval(() => this.calcTime(this), 1000); 
     }
 
@@ -538,12 +539,7 @@ export class ThreeJsView {
 
             console.log("calcTime")
             console.log(self.#timeLeft)
-            var hours = Math.floor(self.#timeLeft  / 3600);
-            var minutes = Math.floor(self.#timeLeft  % 3600 / 60);
-            var seconds = Math.floor(self.#timeLeft  % 3600 % 60);
-          
-            // Display the result in the element with id="demo"
-            document.querySelector(".timer-container").innerHTML = hours + ":" + minutes + ":" + seconds;
+            this.displayTime(this);
           
             // If the count down is finished, write some text
             
@@ -551,6 +547,18 @@ export class ThreeJsView {
             self.#timeLeft -= 1;
         }
         
+    }
+
+    displayTime(self) {
+        var hours = Math.floor(self.#timeLeft  / 3600);
+        var minutes = Math.floor(self.#timeLeft  % 3600 / 60);
+        var seconds = Math.floor(self.#timeLeft  % 3600 % 60);
+        
+        // Display the result in the element with id="demo"
+        document.querySelector(".timer-container").innerHTML = 
+            (hours < 10 ? "0" + hours : hours )+ ":" 
+            + (minutes < 10 ? "0" + minutes : minutes ) + ":" 
+            + (seconds < 10 ? "0" + seconds : seconds );
     }
 
     pauseTimer() {
