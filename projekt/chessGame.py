@@ -7,6 +7,9 @@ class ChessGame:
         self.blackPlayerSid = ""
         self.board = chess.Board()
 
+    def getLegalMoves(self):
+        return [move.uci() for move in list(self.board.legal_moves)]
+
     def setWhitePlayer(self, sid):
         self.whitePlayerSid = sid
 
@@ -31,10 +34,10 @@ class ChessGame:
         move = chess.Move.from_uci(pieceMove)
         
         print("pieceMove: ", pieceMove)
-        
+        print("legalMoves", self.getLegalMoves())
         if move in self.board.legal_moves:
             self.makeMove(move, sid)
-            self.board.push(move)
+            # self.board.push(move)
             self.checkGameOver()
         else:
             if chess.Move.from_uci(pieceMove + 'q') in self.board.legal_moves:  # check for possible promotion
@@ -79,16 +82,19 @@ class ChessGame:
                 else:
                     self.sio.emit("movePiece", "e8c8", room=self.roomNr)
                     self.sio.emit("movePiece", "a8d8", room=self.roomNr)
+            self.board.push(move)
             self.sio.emit("blockMovement",to=lastMoveSid)
-            self.sio.emit("unblockMovement", room=self.roomNr, skip_sid=lastMoveSid)
+            self.sio.emit("unblockMovement", self.getLegalMoves(), room=self.roomNr, skip_sid=lastMoveSid)
             return
 
         # print(self.board.find_move(chess.parse_square(pieceMove[0:2]), chess.parse_square(pieceMove[2:])))
 
         print("movePiece:", str(move))
         self.sio.emit("movePiece", str(move), room=self.roomNr)
+        self.board.push(move)
+        print("makeMove: ", self.getLegalMoves())
         self.sio.emit("blockMovement",to=lastMoveSid)
-        self.sio.emit("unblockMovement", room=self.roomNr, skip_sid=lastMoveSid)
+        self.sio.emit("unblockMovement", self.getLegalMoves(), room=self.roomNr, skip_sid=lastMoveSid)
 
 
     def promotePawn(self, move, lastMoveSid):
@@ -111,7 +117,7 @@ class ChessGame:
             "color": "white" if lastMoveSid == self.whitePlayerSid else "black"}, 
             room=self.roomNr)
         self.sio.emit("blockMovement",to=lastMoveSid)
-        self.sio.emit("unblockMovement", room=self.roomNr, skip_sid=lastMoveSid)
+        self.sio.emit("unblockMovement", self.getLegalMoves(), room=self.roomNr, skip_sid=lastMoveSid)
 
     def removePiece(self, piecePosition):
         self.sio.emit("removePiece", piecePosition, room=self.roomNr)
@@ -132,9 +138,9 @@ class ChessGame:
         else:
             self.sio.emit("message", 'Opponent didn\'t accept draw', room=self.roomNr, skip_sid=playerSid)
             if self.board.turn == chess.WHITE:
-                self.sio.emit("unblockMovement", to=self.whitePlayerSid)
+                self.sio.emit("unblockMovement", self.getLegalMoves(), to=self.whitePlayerSid)
             else:
-                self.sio.emit("unblockMovement", to=self.blackPlayerSid)
+                self.sio.emit("unblockMovement", self.getLegalMoves(), to=self.blackPlayerSid)
     
     def timeEnd(self, playerSid):
         self.sio.emit("message", "YOUR TIME IS UP", to=playerSid)
@@ -181,7 +187,8 @@ class ChessGame:
         # one player asks for draw
 
     def repeatMove(self,lastMoveSid):
-        self.sio.emit("unblockMovement", to=lastMoveSid)
+        print("repeatMove: ", self.getLegalMoves())
+        self.sio.emit("unblockMovement", self.getLegalMoves(), to=lastMoveSid)
 
     def check(self):
         return self.board.outcome()

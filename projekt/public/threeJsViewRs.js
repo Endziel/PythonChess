@@ -29,21 +29,19 @@ export class ThreeJsView {
     #isTimerPaused
     #timeLeft  // in seconds
     #timerId
+    #legalMoves
     // #orbitControls
     
 
-    constructor(myPieces, socket, testDocument = undefined) {
+    constructor(myPieces, socket, legalMoves, testDocument = undefined) {
         if(myPieces == "white"){
             this.#camera = this.#createCamera(12.9, 12.9);
         }else{
             this.#camera = this.#createCamera(12.9, -12.9);
         }
 
-        this.#myPieces = myPieces
-
-        // if (testDocument != undefined) {
-        //     document = testDocument;
-        // }
+        this.#myPieces = myPieces;
+        this.#legalMoves = legalMoves;
 
         this.#socket = socket;
 
@@ -220,6 +218,7 @@ export class ThreeJsView {
     
         function onDrag(event, self) {
             event.object.position.z = 0; // This will prevent moving z axis, but will be on 0 line. change this to your object position of z axis.
+            console.log("EVENT OBJECT", event.object)
             self.scene.updateMatrixWorld();
                 let positions = self.#board.SQUARE_POSITIONS_MAP;
                 
@@ -236,38 +235,55 @@ export class ThreeJsView {
                         closestField = key;
                     }
                 }
-    
-    
-                if (previousField == undefined) {
-                    previousField = closestField;
-                    previousFieldColor = self.#container.getObjectByName(previousField).material.color.clone();
-    
-                    currentField = closestField;
-                    // currentFieldColor = container.getObjectByName(currentField).material.color.clone();
-    
-                    console.log("pierwsze ustawwienia");
+
+                for (let [position, color] of Object.entries(self.#board.SQUARE_COLORS_MAP)) {
+                    // if (position != closestField) {
+                    //     self.container.getObjectByName(position).material.color.set(color);
+                    // }
+                    self.container.getObjectByName(position).material.color.set(color);
                 }
     
-                currentField = closestField;
+                for (let move of self.#legalMoves) {
+                    console.log("MOVEdqwdqwdqwd", move)
+                    if (move.slice(0, 2) == event.object.parent.parent.name) {
+                        self.container.getObjectByName(move.slice(2, 4)).material.color.set(0x00ff00);
+                    }
+                }
+    
                 
-                if (currentField != previousField) {
-                    console.log("powrot");
-                    console.log(previousFieldColor);
-                    self.container.getObjectByName(previousField).material.color.set(previousFieldColor);
-                    previousField = currentField;
-                    previousFieldColor = self.#container.getObjectByName(previousField).material.color.clone();
-                    console.log("powrot");
+    
+                self.container.getObjectByName(closestField).material.color.set(0x0000ff);
+
+                // if (previousField == undefined) {
+                //     previousField = closestField;
+                //     previousFieldColor = self.#container.getObjectByName(previousField).material.color.clone();
+    
+                //     currentField = closestField;
+                //     // currentFieldColor = container.getObjectByName(currentField).material.color.clone();
+    
+                //     console.log("pierwsze ustawwienia");
+                // }
+    
+                // currentField = closestField;
+                
+                // if (currentField != previousField) {
+                //     console.log("powrot");
+                //     console.log(previousFieldColor);
+                //     self.container.getObjectByName(previousField).material.color.set(previousFieldColor);
+                //     previousField = currentField;
+                //     previousFieldColor = self.#container.getObjectByName(previousField).material.color.clone();
+                //     console.log("powrot");
     
     
-                }
+                // }
     
-                if (self.#container.getObjectByName(currentField).material.color.getHexString() != '0000ff' ){
+                // if (self.#container.getObjectByName(currentField).material.color.getHexString() != '0000ff' ){
                     
-                    // currentFieldColor =  container.getObjectByName(closestField).material.color.clone();
-                    self.container.getObjectByName(closestField).material.color.set("#00f");
-                    console.log("w ifie");
+                //     // currentFieldColor =  container.getObjectByName(closestField).material.color.clone();
+                //     self.container.getObjectByName(closestField).material.color.set("#00f");
+                //     console.log("w ifie");
     
-                }
+                // }
         }
     
         function onDragEnd(event, self, orbitControls) {
@@ -282,9 +298,14 @@ export class ThreeJsView {
 
 
             
-            
+            for (let [position, color] of Object.entries(self.#board.SQUARE_COLORS_MAP)) {
+                // if (position != closestField) {
+                //     self.container.getObjectByName(position).material.color.set(color);
+                // }
+                self.container.getObjectByName(position).material.color.set(color);
+            }
 
-            self.container.getObjectByName(closestField).material.color.set(previousFieldColor);
+            // self.container.getObjectByName(closestField).material.color.set(previousFieldColor);
             
             self.renderer.domElement.classList.add("cursor-on");
             self.renderer.domElement.classList.remove("cursor-none");
@@ -324,9 +345,11 @@ export class ThreeJsView {
         this.#dragControls.deactivate();
     }
 
-    unblockPieces() {
-        // this.#dragControls.enabled = true;
+    unblockPieces(legalMoves) {
         this.#dragControls.activate();
+        this.#legalMoves = legalMoves;
+        console.log(legalMoves)
+        
     }
 
     async changePiecePosition(previous, current) {

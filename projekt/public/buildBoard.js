@@ -22,6 +22,7 @@ export class BuildBoard{
     #SQUARE_SIZE;
     #SQUARE_MESH_IDS = [];
     #SQUARE_POSITIONS_MAP = {};
+    #SQUARE_COLORS_MAP = {}
     #blackFigures = [];
     #whiteFigures = [];
     #board;
@@ -47,6 +48,10 @@ export class BuildBoard{
 
     get SQUARE_POSITIONS_MAP() {
         return this.#SQUARE_POSITIONS_MAP;
+    }
+
+    get SQUARE_COLORS_MAP() {
+        return this.#SQUARE_COLORS_MAP;
     }
 
     get SQUARE_SIZE() {
@@ -86,6 +91,7 @@ export class BuildBoard{
                 squareMesh.receiveShadow = true;
     
                 this.#SQUARE_MESH_IDS[square] = squareMesh.id;
+                this.#SQUARE_COLORS_MAP[square] = (((i % 2) === 0) ^ ((j % 2) === 0) ? 0xffffff: 0x000000);;
                 squareMesh.tag = square;
                 squareMesh.name = square;
 

@@ -19,28 +19,28 @@ export class AppClient {
     
         });
     
-        this.socket.on('startGameWhite', text => {
-            this.Game = new ThreeJsView(text, this.socket);
+        this.socket.on('startGameWhite', data => {
+            this.Game = new ThreeJsView(data['text'], this.socket, data['legalMoves']);
             this.Game.render();
             this.Game.startTimer();
             this.Game.unpauseTimer();
-    
+            
             const el = document.createElement('li');
-            el.innerHTML = text;
+            el.innerHTML = data['text'];
             document.querySelector('ul').appendChild(el)
             // this.Game.render();
     
         });
     
     
-        this.socket.on('startGameBlack', text => {
-            this.Game = new ThreeJsView(text, this.socket);
+        this.socket.on('startGameBlack', data => {
+            this.Game = new ThreeJsView(data['text'], this.socket, data['legalMoves']);
             this.Game.blockPieces();
             this.Game.render();
             this.Game.startTimer();
     
             const el = document.createElement('li');
-            el.innerHTML = text;
+            el.innerHTML = data['text'];
             document.querySelector('ul').appendChild(el)
         });
     
@@ -49,8 +49,8 @@ export class AppClient {
             this.Game.pauseTimer();
         });
 
-        this.socket.on('unblockMovement', () => {
-            this.Game.unblockPieces();
+        this.socket.on('unblockMovement', (legalMoves) => {
+            this.Game.unblockPieces(legalMoves);
             this.Game.unpauseTimer();
         });
         

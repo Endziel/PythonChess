@@ -43,8 +43,8 @@ class Server:
                     self.listOfRooms[roomNr].setWhitePlayer(sid)
                 if self.counter%2 == 1:
                     self.listOfRooms[roomNr].setBlackPlayer(sid)
-                    self.sio.emit("startGameWhite", "white", to=self.listOfRooms[roomNr].getWhitePlayerSid())
-                    self.sio.emit("startGameBlack", "black", to=self.listOfRooms[roomNr].getBlackPlayerSid())
+                    self.sio.emit("startGameWhite", {'text': "white", 'legalMoves': self.listOfRooms[roomNr].getLegalMoves()}, to=self.listOfRooms[roomNr].getWhitePlayerSid())
+                    self.sio.emit("startGameBlack", {'text': "black", 'legalMoves': None}, to=self.listOfRooms[roomNr].getBlackPlayerSid())
                     self.sio.emit("message", roomNr, room=roomNr)
 
 
