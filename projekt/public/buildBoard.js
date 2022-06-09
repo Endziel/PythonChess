@@ -8,7 +8,7 @@
 // import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from '../../projekt/three/build/three.module.js';
 import { GLTFLoader } from '../../projekt/three/examples/jsm/loaders/GLTFLoader.js';
-
+import { jsonText } from './font.js';
 
 // if (typeof require === 'function') // test for nodejs environment
 // {
@@ -26,12 +26,13 @@ export class BuildBoard{
     #blackFigures = [];
     #whiteFigures = [];
     #board;
-    // #font;
+    #font;
 
     constructor(){
         this.#SQUARE_SIZE = 2;
         this.#board = this.#buildBoard();
         this.#drawBoardBottom();
+        
     }
 
     get blackFigures() {
@@ -60,7 +61,7 @@ export class BuildBoard{
 
     buildBoardWithPieces(){
         this.#addPieces();
-        // console.log("buildBoardWithPieces");
+        this.#addFieldLabels();
         return this.#board;
 
     }
@@ -104,36 +105,82 @@ export class BuildBoard{
 
     }
 
-    // #addPiece(name, position){ 
-    //     console.log(this.#board.getObjectByName(position));
-    //     var loader = new THREE.FontLoader();
+    #addFieldLabels(){ 
+        var loader = new THREE.FontLoader();
+        var letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+        const obj = JSON.parse(jsonText);
+        this.#font =  loader.parse(obj);
 
-    //     const obj = JSON.parse(jsonText);
-    //     this.#font =  loader.parse(obj);
+        for (let i = 0; i < 8; i++) {
+            var tz = 3.5 * this.#SQUARE_SIZE - (this.#SQUARE_SIZE * i);
+
+            var textGeo = new THREE.TextGeometry( (i+1).toString(), {
+
+                font: this.#font,
+
+                size: 1,
+                height: 0.001,
+                curveSegments: 12,
+
+                bevelThickness: 0.3,
+                bevelSize: 0.05,
+                bevelEnabled: true
+
+            });
+            
+            var textMaterial = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
         
-    //     var textGeo = new THREE.TextGeometry( name, {
+            console.log(textGeo);
+            var mesh = new THREE.Mesh( textGeo, textMaterial );
 
-    //         font: this.#font,
+            mesh.position.set(-9, 0, tz);
+            mesh.rotation.set(-Math.PI / 3, 0, 0);
+            // console.log(this.#board.parent)
+            this.#board.add(mesh);
 
-    //         size: 1,
-    //         height: 0.001,
-    //         curveSegments: 12,
+            var mesh = new THREE.Mesh( textGeo, textMaterial );
 
-    //         bevelThickness: 0.3,
-    //         bevelSize: 0.05,
-    //         bevelEnabled: true
+            mesh.position.set(9, 0, tz);
+            mesh.rotation.set(Math.PI / 3, Math.PI, 0);
+            // console.log(this.#board.parent)
+            this.#board.add(mesh);
+        }
 
-    //     });
+        for (let i = 0; i < 8; i++) {
+            var tx = 3.5 * this.#SQUARE_SIZE - (this.#SQUARE_SIZE * i);
+
+            var textGeo = new THREE.TextGeometry( letters[i], {
+
+                font: this.#font,
+
+                size: 1,
+                height: 0.001,
+                curveSegments: 12,
+
+                bevelThickness: 0.3,
+                bevelSize: 0.05,
+                bevelEnabled: true
+
+            });
+            
+            var textMaterial = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
         
-    //     var textMaterial = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
-    
-    //     console.log(textGeo);
-    //     var mesh = new THREE.Mesh( textGeo, textMaterial );
+            console.log(textGeo);
+            var mesh = new THREE.Mesh( textGeo, textMaterial );
 
-    //     mesh.position.set(-0.25, 0, 0);
-    //     this.#board.getObjectByName(position).add(mesh);
-    //     this.#figures.push(mesh);
-    // }
+            mesh.position.set(-tx-0.25, 0, 9.5);
+            mesh.rotation.set(-Math.PI / 3, 0, 0);
+            // console.log(this.#board.parent)
+            this.#board.add(mesh);
+
+            var mesh = new THREE.Mesh( textGeo, textMaterial );
+
+            mesh.position.set(tx-0.25, 0, -9.5);
+            mesh.rotation.set(Math.PI / 3, Math.PI, 0);
+            // console.log(this.#board.parent)
+            this.#board.add(mesh);
+        }
+    }
 
     async addPiece(position, pieceSymbol, color) {
         
