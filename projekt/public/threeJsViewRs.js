@@ -443,12 +443,14 @@ export class ThreeJsView {
         
         let buttonsContainer = document.createElement("div");
         buttonsContainer.style.position = 'absolute';
+        buttonsContainer.classList.add("pieceChoiceContainer");
         
         
         for (let [name, value] of Object.entries(buttons)) {
             let button = document.createElement("button");
             button.innerHTML = name;
-            button.value = value;
+            button.setAttribute("value", value+"-"+this.myPieces);
+            button.classList.add("pieceChoice");
             button.addEventListener("click", (event) => pickPromotionPiece(event, this, move))
             buttonsContainer.appendChild(button);
         }
@@ -462,6 +464,7 @@ export class ThreeJsView {
             let button = event.target
             console.log("MOVE: ", move, "BUTTON.VALUE: ", button.value);
             self.socket.emit("endPromotion", move.slice(0, 4) + button.value);
+            document.querySelector(".pieceChoiceContainer").remove();
         }
     }
 
@@ -501,6 +504,9 @@ export class ThreeJsView {
     }
 
     drawProposal() {
+        let drawButtonsContainer = document.createElement("div");
+        drawButtonsContainer.classList.add("draw-buttons-container");
+
         let buttonAccept = document.createElement("button");
         buttonAccept.innerHTML = "ACCEPT DRAW";
         buttonAccept.setAttribute("id", "btn-draw-accept");
@@ -510,19 +516,18 @@ export class ThreeJsView {
         buttonDecline.setAttribute("id", "btn-draw-decline");
 
         buttonAccept.onclick = () => {
-            document.querySelector("#btn-draw-accept").remove();
-            document.querySelector("#btn-draw-decline").remove();
+            drawButtonsContainer.remove()
             this.socket.emit('draw', true)
         }
 
         buttonDecline.onclick = () => {
-            document.querySelector("#btn-draw-accept").remove();
-            document.querySelector("#btn-draw-decline").remove();
+            drawButtonsContainer.remove()
             this.socket.emit('draw', false)
         }
 
-        document.body.appendChild(buttonAccept);
-        document.body.appendChild(buttonDecline);
+        drawButtonsContainer.appendChild(buttonAccept);
+        drawButtonsContainer.appendChild(buttonDecline);
+        document.body.appendChild(drawButtonsContainer);
     }
 
     startTimer() {
@@ -532,8 +537,9 @@ export class ThreeJsView {
 
     calcTime(self) {
         if (!self.isTimerPaused) {
-            if (self.#timeLeft < 0) {
+            if (self.#timeLeft <= 0) {
                 clearInterval(self.timerId);
+                this.displayTime(this);
                 self.socket.emit("timeEnd");
             }
 

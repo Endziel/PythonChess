@@ -27,18 +27,22 @@ body {
     height: 100vh !important;
 }
 
+.draw-buttons-container {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%);
+  width: 300px;
+  display: flex;
+  justify-content: space-between;
+}
+
 #btn-draw-accept {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  background-color: greenyellow;
 }
 
 #btn-draw-decline {
-    position: absolute;
-    top: 55%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  background-color: red;
 }
 
 .chat-container {
@@ -105,7 +109,7 @@ body {
   justify-content: center;
 }
 
-.proposal-buttons button{
+.proposal-buttons button, .draw-buttons-container button{
   display: flex;
   justify-content: center;
   margin-bottom: .5em;
@@ -114,7 +118,7 @@ body {
   font-family: "Open Sans", sans-serif;
 }
 
-.proposal-buttons button:hover{
+.proposal-buttons button:hover, .draw-buttons-container button:hover{
   cursor: pointer;
 }
 
@@ -139,7 +143,48 @@ body {
   color: #fff8;
 }
 
+.pieceChoice {
+  width: 133px;
+  height: 133px;
+  background: url("../objects/chess-pieces.png");
+  color: transparent;
+}
 
+.pieceChoice:hover {
+  cursor: pointer;
+}
+
+.pieceChoice[value="q-white"] {
+  background-position: 667px 0px;
+}
+
+.pieceChoice[value="r-white"] {
+  background-position: 266px 0px;
+}
+
+.pieceChoice[value="n-white"] {
+  background-position: 399px 0px;
+}
+
+.pieceChoice[value="b-white"] {
+  background-position: 533px 0px;
+}
+
+.pieceChoice[value="q-black"] {
+  background-position: 667px 133px;
+}
+
+.pieceChoice[value="r-black"] {
+  background-position: 266px 133px;
+}
+
+.pieceChoice[value="n-black"] {
+  background-position: 399px 133px;
+}
+
+.pieceChoice[value="b-black"] {
+  background-position: 533px 133px;
+}
 
 .timer-container {
     font-size: 2rem;
