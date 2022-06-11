@@ -66,6 +66,7 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           working-directory: .
+          run: ls
           start: python ./projekt/ser.py
           wait-on: 'http://localhost:8000/'
           wait-on-timeout: 120
