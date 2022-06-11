@@ -65,7 +65,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          start: python ./projekt/ser.py
+          start: python ./projekt/ser.py & npx cypress run
           wait-on: 'http://localhost:8000/'
           wait-on-timeout: 120
       
