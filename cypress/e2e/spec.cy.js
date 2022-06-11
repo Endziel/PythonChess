@@ -10,6 +10,5 @@ describe('web socket event handler', () => {
     cy.get(`input`).type('asdf').type('{enter}')
     cy.get('.my-message').should('contain.text', "asdf")
     
-    
   })
 })
