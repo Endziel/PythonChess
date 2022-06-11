@@ -11,42 +11,59 @@ export class AppClient {
     }
 
     init() {
-        this.socket.on('message', text => {
+        this.socket.on('message', data => {
 
-            const el = document.createElement('li');
-            el.innerHTML = text;
-            document.querySelector('ul').appendChild(el)
+            const el = document.createElement('p');
+            el.innerHTML = data['text'];
+            
+
+            if (data['from'] == "me") {
+                el.classList.add("my-message");
+            } else if (data['from'] == "opponent") {
+                el.classList.add("opponent-message");
+            } else {
+                el.classList.add("game-info-message");
+            }
     
+            let container = document.querySelector('.messages-container');
+            container.appendChild(el);
+            container.scrollTop = container.scrollHeight;
         });
     
-        this.socket.on('startGameWhite', text => {
-            this.Game = new ThreeJsView(text, this.socket);
+        this.socket.on('startGameWhite', data => {
+            this.Game = new ThreeJsView(data['text'], this.socket, data['legalMoves']);
             this.Game.render();
-    
-            const el = document.createElement('li');
-            el.innerHTML = text;
-            document.querySelector('ul').appendChild(el)
-            // this.Game.render();
+            this.Game.startTimer();
+            this.Game.unpauseTimer();
+            
+            const el = document.createElement('p');
+            el.innerHTML = data['text'];
+            el.classList.add("game-info-message");
+            document.querySelector('.messages-container').appendChild(el);
     
         });
     
     
-        this.socket.on('startGameBlack', text => {
-            this.Game = new ThreeJsView(text, this.socket);
+        this.socket.on('startGameBlack', data => {
+            this.Game = new ThreeJsView(data['text'], this.socket, data['legalMoves']);
             this.Game.blockPieces();
             this.Game.render();
-    
-            const el = document.createElement('li');
-            el.innerHTML = text;
-            document.querySelector('ul').appendChild(el)
+            this.Game.startTimer();
+
+            const el = document.createElement('p');
+            el.innerHTML = data['text'];
+            el.classList.add("game-info-message");
+            document.querySelector('.messages-container').appendChild(el)
         });
     
         this.socket.on('blockMovement', () => {
             this.Game.blockPieces();
+            this.Game.pauseTimer();
         });
 
-        this.socket.on('unblockMovement', () => {
-            this.Game.unblockPieces();
+        this.socket.on('unblockMovement', (legalMoves) => {
+            this.Game.unblockPieces(legalMoves);
+            this.Game.unpauseTimer();
         });
         
         this.socket.on('movePiece', piecePosition => {
@@ -68,14 +85,51 @@ export class AppClient {
             
             this.Game.choosePromotionPiece(move);
         });
+
+        this.socket.on('addPromotedPiece', pieceData => {
+            console.log("addPromotedPiece");
+
+            let position = pieceData['position'];
+            let pieceSymbol = pieceData['pieceSymbol'];
+            let color = pieceData['color'];
+            this.Game.addPromotedPiece(position, pieceSymbol, color);
+        })
     
-    
-        document.querySelector('button').onclick = () => {
+        this.socket.on('drawProposal', () => {
+            console.log("drawProposal");
+            this.Game.drawProposal();
+        })
+
+
+        document.querySelector('input').onkeyup = (e) => {
     
             const text = document.querySelector('input').value;
-            this.socket.emit('message', text)
+            if (e.key === "Enter") {
+                if (text.trim() != "") {
+                    this.socket.emit('message', text);
+                }
+                document.querySelector('input').value = "";
+            }
+        }
+
+        document.querySelector('#btn-resign').onclick = () => {
+            this.socket.emit('resign')
             
         }
+
+        document.querySelector('#btn-draw').onclick = () => {
+            this.socket.emit('drawProposal')
+        }
+
+        // document.querySelector('#btn-draw-accept').onclick = () => {
+        //     this.socket.emit('draw', true)
+        // }
+
+        // document.querySelector('#btn-draw-decline').onclick = () => {
+        //     this.socket.emit('draw', false)
+        // }
+
+
     }
     
 

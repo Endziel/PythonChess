@@ -1,0 +1,232 @@
+.cursor-none {
+    cursor: none !important;
+}
+
+.cursor-on {
+    cursor: auto;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    position: relative;
+    overflow: hidden;
+}
+
+/* #board canvas {
+    width: 100vw !important;
+    height: 100vh !important;
+} */
+
+.draw-buttons-container {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%);
+  width: 300px;
+  display: flex;
+  justify-content: space-between;
+}
+
+#btn-draw-accept {
+  background-color: greenyellow;
+}
+
+#btn-draw-decline {
+  background-color: red;
+}
+
+.chat-container {
+    position: absolute;
+    bottom: 2rem;
+    right: 0;
+    width: 20vw;
+    min-width: 10rem;
+    height: 40vh;
+    min-height: 8rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    color: white;
+    font-family: "Open Sans", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: space-between;
+    overflow: hidden;
+
+}
+
+.chat-container .messages-container {
+  display: flex;
+  height: 80%;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.chat-container p {
+  display: block;
+  padding: .5rem;
+  border-radius: .5em;
+  margin: 0.1em 0;
+  width: 100%;
+  overflow-wrap: break-word;
+}
+
+.opponent-message {
+  background: linear-gradient(120deg, #ED213A55, #93291E55);
+}
+
+.my-message {
+  background: linear-gradient(120deg, #248a5255, #25728755);
+  text-align: right;
+}
+
+/* TODO: TIMER */
+.game-info-message {
+  text-align: center;
+  font-weight: bold;
+  font-style: italic;
+  background-color: #0008;
+}
+
+.chat-buttons{
+  display: flex;
+  flex-direction: column;
+}
+
+.proposal-buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.proposal-buttons button, .draw-buttons-container button{
+  display: flex;
+  justify-content: center;
+  margin-bottom: .5em;
+  border-radius: 5px;
+  padding: 0.4em;
+  font-family: "Open Sans", sans-serif;
+}
+
+.proposal-buttons button:hover, .draw-buttons-container button:hover{
+  cursor: pointer;
+}
+
+#btn-draw{
+  background-color: gold;
+}
+
+#btn-resign {
+  background-color: red;
+}
+
+.send-box input {
+  width: 100%;
+  /* background: linear-gradient(120deg, #248a52, #257287); */
+  background-color: #0005;
+  color: #fffd;
+  border-radius: 5px;
+  padding: 0.5em 0.3em;
+}
+
+.send-box input::placeholder {
+  color: #fff8;
+}
+
+.pieceChoice {
+  width: 133px;
+  height: 133px;
+  background: url("../objects/chess-pieces.png");
+  color: transparent;
+}
+
+.pieceChoice:hover {
+  cursor: pointer;
+}
+
+.pieceChoice[value="q-white"] {
+  background-position: 667px 0px;
+}
+
+.pieceChoice[value="r-white"] {
+  background-position: 266px 0px;
+}
+
+.pieceChoice[value="n-white"] {
+  background-position: 399px 0px;
+}
+
+.pieceChoice[value="b-white"] {
+  background-position: 533px 0px;
+}
+
+.pieceChoice[value="q-black"] {
+  background-position: 667px 133px;
+}
+
+.pieceChoice[value="r-black"] {
+  background-position: 266px 133px;
+}
+
+.pieceChoice[value="n-black"] {
+  background-position: 399px 133px;
+}
+
+.pieceChoice[value="b-black"] {
+  background-position: 533px 133px;
+}
+
+.timer-container {
+    font-size: 2rem;
+    position: absolute;
+    top: 10%;
+    right: 10%;
+    font-weight: bold;
+    background: #fff5;
+    border-radius: 5px;
+    padding: .5em;
+    border: 3px solid black;
+}
+
+
+
+
+
+
+
+
+
+/* width */
+::-webkit-scrollbar {
+  width: 5px;
+
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  /* background: #f1f1f1; */
+  background-color: white;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 20px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+  
+ 

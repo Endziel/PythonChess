@@ -12,8 +12,8 @@ import { DragControls } from '../../projekt/three/examples/jsm/controls/DragCont
 import  BuildBoard  from '../../projekt/public/buildBoard.js';
 
 export class ThreeJsView {
-    #width = 1376;
-    #height = 768;
+    #width = window.innerWidth;
+    #height = window.innerHeight;
     #aspectRatio = this.#width / this.#height;
     // #fov = 65;
     // #nearClip = 0.1;
@@ -25,19 +25,26 @@ export class ThreeJsView {
     #renderer;
     #dragControls
     #socket
-    // #orbitControls
-    
+    #myPieces
+    #isTimerPaused
+    #timeLeft  // in seconds
+    #timerId
+    #legalMoves
+    #orbitControls
+    // #mouse
+    // #raycaster
+    // #mouseClick
+    // #draggable
 
-    constructor(myPieces, socket, testDocument = undefined) {
+    constructor(myPieces, socket, legalMoves, testDocument = undefined) {
         if(myPieces == "white"){
             this.#camera = this.#createCamera(12.9, 12.9);
         }else{
             this.#camera = this.#createCamera(12.9, -12.9);
         }
 
-        if (testDocument != undefined) {
-            document = testDocument;
-        }
+        this.#myPieces = myPieces;
+        this.#legalMoves = legalMoves;
 
         this.#socket = socket;
 
@@ -48,14 +55,29 @@ export class ThreeJsView {
         
         this.#scene.add(this.#container);
 
+        this.#addBackground();
         this.#addAmbientLight(0.45, 0xFFFFFF);
         this.#addDirectionalLight(new THREE.Vector3(30, 15, -17), 1.75, 0xFFFFFF, 50);
         this.#addControls(myPieces);
         // this.render();
 
+        this.#addTimer();
+        this.#isTimerPaused = true;
+        this.#timeLeft = 120;
+        
+
         const axesHelper = new THREE.AxesHelper( 5 );
             this.scene.add( axesHelper );
 
+        // this.#mouse = new THREE.Vector2();
+        // this.#mouseClick = new THREE.Vector2();
+        // this.#raycaster = new THREE.Raycaster();
+        // this.#draggable = null;
+        // this.#selectedPiece = null;
+        window.addEventListener( 'resize', (event) => this.onWindowResize(this), false );
+        // window.addEventListener('mousemove', (event) => this.onMouseMove(this, event))
+        // window.addEventListener('click', (event) => this.onClick(this, event))
+        
     }
 
     sleep(ms) {
@@ -70,6 +92,10 @@ export class ThreeJsView {
         return this.#container;
     }
 
+    get camera() {
+        return this.#camera;
+    }
+
     get scene() {
         return this.#scene;
     }
@@ -78,6 +104,17 @@ export class ThreeJsView {
         return this.#socket;
     }
 
+    get myPieces() {
+        return this.#myPieces;
+    }
+
+    get isTimerPaused() {
+        return this.#isTimerPaused;
+    }
+
+    get timerId() {
+        return this.#timerId;
+    }
 
     #createCamera(positionY, positionZ){
         var fov = 65;
@@ -97,6 +134,15 @@ export class ThreeJsView {
 
     }
     
+    #addBackground() {
+        const loader = new THREE.TextureLoader();
+        loader.load('https://images.pexels.com/photos/2246476/pexels-photo-2246476.jpeg' , (texture) => onLoad(texture, this));
+        
+        function onLoad(texture, self) {
+            self.#scene.background = texture; 
+        }
+    }
+
     #setRenderer() {
         var renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.setSize(this.#width, this.#height);
@@ -110,6 +156,7 @@ export class ThreeJsView {
         console.log("setRenderer");
         return renderer;
     }
+
     #addAmbientLight(intensity, color) {
         var ambientLight = new THREE.AmbientLight(color, intensity);
 
@@ -133,7 +180,7 @@ export class ThreeJsView {
     }
 
     #addControls(piecesColor) {
-        var Orbcontrols = new OrbitControls(this.#camera,this.#renderer.domElement);
+        this.#orbitControls = new OrbitControls(this.#camera,this.#renderer.domElement);
         // Orbcontrols.maxPolarAngle = Math.PI / 6;
         // Orbcontrols.minPolarAngle = Math.PI / 6;
         // Orbcontrols.minDistance = 10;
@@ -152,15 +199,15 @@ export class ThreeJsView {
 
         this.#dragControls.addEventListener('hoveroff', (event) => onHoverOff(event));
 
-        this.#dragControls.addEventListener( 'dragstart', (event) => onDragStart(event, this, Orbcontrols) );
+        this.#dragControls.addEventListener( 'dragstart', (event) => onDragStart(event, this, this.#orbitControls) );
 
         // console.log(Board.SQUARE_POSITIONS_MAP);
         
         this.#dragControls.addEventListener ( 'drag', (event) => onDrag(event, this));
         
-        this.#dragControls.addEventListener( 'dragend', (event) => onDragEnd(event, this, Orbcontrols));
+        this.#dragControls.addEventListener( 'dragend', (event) => onDragEnd(event, this, this.#orbitControls));
 
-        Orbcontrols.update();
+        this.#orbitControls.update();
         console.log("addControls");
 
 
@@ -198,10 +245,12 @@ export class ThreeJsView {
     
         function onDrag(event, self) {
             event.object.position.z = 0; // This will prevent moving z axis, but will be on 0 line. change this to your object position of z axis.
+            console.log("EVENT OBJECT", event.object)
             self.scene.updateMatrixWorld();
                 let positions = self.#board.SQUARE_POSITIONS_MAP;
                 
                 let piecePosition = new THREE.Vector3( 0, 0, 0 );
+                
                 event.object.getWorldPosition(piecePosition);
                 // console.log(piecePosition);
                 // let worldPosition = event.object.localToWorld(piecePosition);
@@ -214,38 +263,55 @@ export class ThreeJsView {
                         closestField = key;
                     }
                 }
-    
-    
-                if (previousField == undefined) {
-                    previousField = closestField;
-                    previousFieldColor = self.#container.getObjectByName(previousField).material.color.clone();
-    
-                    currentField = closestField;
-                    // currentFieldColor = container.getObjectByName(currentField).material.color.clone();
-    
-                    console.log("pierwsze ustawwienia");
+
+                for (let [position, color] of Object.entries(self.#board.SQUARE_COLORS_MAP)) {
+                    // if (position != closestField) {
+                    //     self.container.getObjectByName(position).material.color.set(color);
+                    // }
+                    self.container.getObjectByName(position).material.color.set(color);
                 }
     
-                currentField = closestField;
+                for (let move of self.#legalMoves) {
+                    // console.log("MOVEdqwdqwdqwd", move)
+                    if (move.slice(0, 2) == event.object.parent.parent.name) {
+                        self.container.getObjectByName(move.slice(2, 4)).material.color.set(0x00ff00);
+                    }
+                }
+    
                 
-                if (currentField != previousField) {
-                    console.log("powrot");
-                    console.log(previousFieldColor);
-                    self.container.getObjectByName(previousField).material.color.set(previousFieldColor);
-                    previousField = currentField;
-                    previousFieldColor = self.#container.getObjectByName(previousField).material.color.clone();
-                    console.log("powrot");
+                console.log('closest field', closestField)
+                self.container.getObjectByName(closestField).material.color.set(0x0000ff);
+
+                // if (previousField == undefined) {
+                //     previousField = closestField;
+                //     previousFieldColor = self.#container.getObjectByName(previousField).material.color.clone();
+    
+                //     currentField = closestField;
+                //     // currentFieldColor = container.getObjectByName(currentField).material.color.clone();
+    
+                //     console.log("pierwsze ustawwienia");
+                // }
+    
+                // currentField = closestField;
+                
+                // if (currentField != previousField) {
+                //     console.log("powrot");
+                //     console.log(previousFieldColor);
+                //     self.container.getObjectByName(previousField).material.color.set(previousFieldColor);
+                //     previousField = currentField;
+                //     previousFieldColor = self.#container.getObjectByName(previousField).material.color.clone();
+                //     console.log("powrot");
     
     
-                }
+                // }
     
-                if (self.#container.getObjectByName(currentField).material.color.getHexString() != '0000ff' ){
+                // if (self.#container.getObjectByName(currentField).material.color.getHexString() != '0000ff' ){
                     
-                    // currentFieldColor =  container.getObjectByName(closestField).material.color.clone();
-                    self.container.getObjectByName(closestField).material.color.set("#00f");
-                    console.log("w ifie");
+                //     // currentFieldColor =  container.getObjectByName(closestField).material.color.clone();
+                //     self.container.getObjectByName(closestField).material.color.set("#00f");
+                //     console.log("w ifie");
     
-                }
+                // }
         }
     
         function onDragEnd(event, self, orbitControls) {
@@ -260,9 +326,14 @@ export class ThreeJsView {
 
 
             
-            
+            for (let [position, color] of Object.entries(self.#board.SQUARE_COLORS_MAP)) {
+                // if (position != closestField) {
+                //     self.container.getObjectByName(position).material.color.set(color);
+                // }
+                self.container.getObjectByName(position).material.color.set(color);
+            }
 
-            self.container.getObjectByName(closestField).material.color.set(previousFieldColor);
+            // self.container.getObjectByName(closestField).material.color.set(previousFieldColor);
             
             self.renderer.domElement.classList.add("cursor-on");
             self.renderer.domElement.classList.remove("cursor-none");
@@ -287,7 +358,16 @@ export class ThreeJsView {
         }
         
     }
+
+    #addTimer() {
+        let timerContainer = document.createElement("div");
+        timerContainer.classList.add("timer-container");
+        document.body.appendChild(timerContainer);
+    }
     render() {
+        // this.resetHover(this);
+        // this.hoverPieces(this);
+        // this.dragObject(this);
         requestAnimationFrame(() => this.render());
         this.renderer.render(this.#scene, this.#camera);
     }
@@ -296,27 +376,20 @@ export class ThreeJsView {
         this.#dragControls.deactivate();
     }
 
-    unblockPieces() {
-        // this.#dragControls.enabled = true;
+    unblockPieces(legalMoves) {
         this.#dragControls.activate();
+        this.#legalMoves = legalMoves;
+        console.log(legalMoves)
+        
     }
 
     async changePiecePosition(previous, current) {
-        // if (this.container.getObjectByName(current).children){
-        //     this.container.getObjectByName(current).children[0].remove;
-        // }
-        // x: 5, y: -0.25, z: 
         this.scene.updateMatrixWorld();
         let piece = this.container.getObjectByName(previous).children[0];
         
-        
-        // this.scene.attach(piece);
-        // await this.sleep(1000);
-        // console.log("test1");
+        console.log("changePiecePosition->dragControls: ", this.#dragControls.getObjects());
         
         const vector = new THREE.Vector3( 0, 0, 0 );
-        // await this.sleep(1000);
-        // console.log("test2");
 
         this.container.getObjectByName(previous).getWorldPosition(vector);
 
@@ -328,46 +401,15 @@ export class ThreeJsView {
 
          console.log(diffVectorsMovePiece);
 
-
-        
-
-        // console.log(vector.x, vector.y, vector.z);
-        // console.log(piece.position.distanceTo(vector));
         piece.position.copy(diffVectorsMovePiece);
-        
-
-        // await this.sleep(1000);
-        // console.log("test3");
         
         this.container.getObjectByName(current).add(piece);
         piece.position.set(0, 0, 0);
 
-        
-        // const vector = new THREE.Vector3( 0, 0, 0 );
-        // this.container.getObjectByName(current).getWorldPosition(vector);
-        // console.log(vector);
-        
-        // let piece = this.container.getObjectByName(previous).children[0];
-        // this.scene.attach(piece);
-        
-        // piece.position.set(vector.x, vector.y, vector.z);
-
-        // this.container.getObjectByName(current).attach(piece);
-
-
         // this.container.getObjectByName(current).add(this.container.getObjectByName(previous).children[0]);
         console.log("previous: ", this.container.getObjectByName(previous).children[0], "current: ", this.container.getObjectByName(current).children[0]);
         
-        // const vector2 = this.container.getObjectByName(current).children[0].worldToLocal(vector);
-        // const vector = new THREE.Vector3( 0, 0, 0 );
-        // this.container.getObjectByName(current).getWorldPosition(vector);
-        // console.log(vector2);
         console.log(this.scene);
-        // this.container.getObjectByName(current).children[0].position.set(vector2.x, vector2.y, vector2.z);
-        // this.container.getObjectByName(previous).children[0].parent = undefined;
-
-        
-
     }
 
     choosePromotionPiece(move) {
@@ -381,13 +423,15 @@ export class ThreeJsView {
         
         let buttonsContainer = document.createElement("div");
         buttonsContainer.style.position = 'absolute';
+        buttonsContainer.classList.add("pieceChoiceContainer");
         
         
         for (let [name, value] of Object.entries(buttons)) {
             let button = document.createElement("button");
             button.innerHTML = name;
-            button.value = value;
-            button.addEventListener("click", () => pickPromotionPiece(this))
+            button.setAttribute("value", value+"-"+this.myPieces);
+            button.classList.add("pieceChoice");
+            button.addEventListener("click", (event) => pickPromotionPiece(event, this, move))
             buttonsContainer.appendChild(button);
         }
         
@@ -396,18 +440,258 @@ export class ThreeJsView {
         buttonsContainer.style.transform = 'translate(-50%, 0)';
         document.body.appendChild(buttonsContainer);
 
-        function pickPromotionPiece(self) {
-            console.log("MOVE: ", move, "BUTTON.VALUE: ", this.value);
-            self.socket.emit("endPromotion", move.slice(0, 4) + this.value);
+        function pickPromotionPiece(event, self, move) {
+            let button = event.target
+            console.log("MOVE: ", move, "BUTTON.VALUE: ", button.value);
+            self.socket.emit("endPromotion", move.slice(0, 4) + button.value);
+            document.querySelector(".pieceChoiceContainer").remove();
         }
+    }
+
+    async addPromotedPiece(position, pieceSymbol, color) {
+        await this.#board.addPiece(position, pieceSymbol, color);
+
+        let piece = this.container.getObjectByName(position).children[0];
+        
+
+        console.log("addPromotedPiece->dragControls: ", this.#dragControls.getObjects());
+        if (this.#myPieces === color) {
+            console.log("COLOR:", color);
+            console.log("BEFORE DRAGCONTROL UPDATE:", this.#dragControls.getObjects());
+            console.log(piece)
+            this.#dragControls.getObjects().push(piece);
+            console.log("AFTER DRAGCONTROL UPDATE:", this.#dragControls.getObjects());
+        }
+        // add to controls
     }
 
     removePiece(piecePosition) {
         let piece = this.container.getObjectByName(piecePosition).children[0];
     
-        piece.parent.remove(piece);
-        console.log(this.#dragControls.getObjects().splice(this.#dragControls.getObjects().indexOf(piece),1));
+        console.log('piece');
+        console.log(piece);
+        let indexInArray = this.#dragControls.getObjects().findIndex(ele => ele.uuid === piece.uuid);
+
+        if (indexInArray != -1) {
+            console.log(this.#dragControls.getObjects().splice(indexInArray,1));
+        }
         
+        piece.parent.remove(piece);
+
+        // console.log(this.#dragControls.getObjects().splice(this.#dragControls.getObjects().indexOf(piece),1));
+        
+        
+    }
+
+    drawProposal() {
+        let drawButtonsContainer = document.createElement("div");
+        drawButtonsContainer.classList.add("draw-buttons-container");
+
+        let buttonAccept = document.createElement("button");
+        buttonAccept.innerHTML = "ACCEPT DRAW";
+        buttonAccept.setAttribute("id", "btn-draw-accept");
+
+        let buttonDecline = document.createElement("button");
+        buttonDecline.innerHTML = "DECLINE DRAW";
+        buttonDecline.setAttribute("id", "btn-draw-decline");
+
+        buttonAccept.onclick = () => {
+            drawButtonsContainer.remove()
+            this.socket.emit('draw', true)
+        }
+
+        buttonDecline.onclick = () => {
+            drawButtonsContainer.remove()
+            this.socket.emit('draw', false)
+        }
+
+        drawButtonsContainer.appendChild(buttonAccept);
+        drawButtonsContainer.appendChild(buttonDecline);
+        document.body.appendChild(drawButtonsContainer);
+    }
+
+    startTimer() {
+        this.displayTime(this);
+        this.#timerId = setInterval(() => this.calcTime(this), 1000); 
+    }
+
+    calcTime(self) {
+        if (!self.isTimerPaused) {
+            if (self.#timeLeft <= 0) {
+                clearInterval(self.timerId);
+                this.displayTime(this);
+                self.socket.emit("timeEnd");
+            }
+
+            // console.log("calcTime")
+            // console.log(self.#timeLeft)
+            this.displayTime(this);
+          
+            // If the count down is finished, write some text
+            
+    
+            self.#timeLeft -= 1;
+        }
+        
+    }
+
+    displayTime(self) {
+        var hours = Math.floor(self.#timeLeft  / 3600);
+        var minutes = Math.floor(self.#timeLeft  % 3600 / 60);
+        var seconds = Math.floor(self.#timeLeft  % 3600 % 60);
+        
+        // Display the result in the element with id="demo"
+        document.querySelector(".timer-container").innerHTML = 
+            (hours < 10 ? "0" + hours : hours )+ ":" 
+            + (minutes < 10 ? "0" + minutes : minutes ) + ":" 
+            + (seconds < 10 ? "0" + seconds : seconds );
+    }
+
+    pauseTimer() {
+        this.#isTimerPaused = true;
+    }
+
+    unpauseTimer() {
+        this.#isTimerPaused = false;
+    }
+
+    // onMouseMove( self, event ) {
+
+    //     // calculate pointer position in normalized device coordinates
+    //     // (-1 to +1) for both components
+    
+    //     self.#mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    //     self.#mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    
+    // }
+
+    // intersect(self, position) {
+    //     self.#raycaster.setFromCamera(position, self.#camera);
+    //     return self.#raycaster.intersectObjects(self.#container.children, true);
+    //   }
+    
+    // dragObject(self) {
+    //     if (self.#draggable != null) {
+    //       const found = self.intersect(self, self.#mouse);
+    //       if (found.length > 0) {
+    //         for (let i = 0; i < found.length; i++) {
+    //           if (!found[i].object.parent.uuid == self.#container.uuid)
+    //             continue
+              
+    //           let target = found[i].name;
+    //           console.log(target)
+                
+    //           self.#draggable.position.x = target.x
+    //           self.#draggable.position.z = target.z
+    //         }
+    //       }
+    //     }
+    //   }
+
+    // resetHover(self) {
+    //     let pieces = self.#myPieces == "white" ? self.#board.whiteFigures : self.#board.blackFigures;
+    //     for (let i = 0; i < pieces.length; i++) {
+    //         pieces[i].children[0].material.color.set(pieces[i].children[0].userData.currentSquare == self.#selectedPiece ? "#ddd" : "#fff");
+    //     }
+    // }
+
+    // hoverPieces(self) {
+    //     self.#scene.updateMatrixWorld();
+    //     self.#raycaster.setFromCamera(self.#mouse, self.#camera);
+    //     const intersects = self.#raycaster.intersectObjects(self.#myPieces == "white" ? self.#board.whiteFigures : self.#board.blackFigures, true);
+    //     // console.log(self.#board.whiteFigures)
+    //     // console.log(intersects)
+
+    //     for (let i = 0; i < intersects.length; i++) {
+    //         // intersects[i].object.material.transparent = true;
+    //         // intersects[i].object.material.opacity = 0.5;
+    //         intersects[i].object.material.color.set("#999");
+    //     }
+    // }
+
+    // onClick(self, event) {
+    //     if (self.#draggable != null) {
+    //         console.log('dropping draggable', self.#draggable)
+    //         self.#draggable = null
+    //         return;
+    //       }
+        
+    //       // THREE RAYCASTER
+    //       self.#mouseClick.x = (event.clientX / window.innerWidth) * 2 - 1;
+    //       self.#mouseClick.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        
+    //       const found = self.intersect(self, self.#mouseClick);
+    //       if (found.length > 0) {
+    //         if (found[0].object.parent.name) {
+    //             self.#draggable = found[0].object
+    //           console.log('found draggable', self.#draggable)
+    //         }
+    //       }
+    // }
+
+        
+    //     if (self.#selectedPiece) {
+    //         self.#raycaster.setFromCamera(self.#mouse, self.#camera);
+    //         intersects = self.#raycaster.intersectObjects(self.#container.children);
+        
+    //         if (intersects.length > 0 && intersects[0].object.name) {
+    //             event.object.position.z = 0; // This will prevent moving z axis, but will be on 0 line. change this to your object position of z axis.
+    //         console.log("EVENT OBJECT", event.object)
+    //         self.scene.updateMatrixWorld();
+    //             let positions = self.#board.SQUARE_POSITIONS_MAP;
+                
+    //             let piecePosition = new THREE.Vector3( 0, 0, 0 );
+    //             event.object.getWorldPosition(piecePosition);
+    //             // console.log(piecePosition);
+    //             // let worldPosition = event.object.localToWorld(piecePosition);
+    //             let minDistance = 10000;
+                
+    //             for (let [key, coords] of Object.entries(positions)) {
+    //                 let distance = Math.sqrt(Math.pow(piecePosition.x-coords[0], 2) + Math.pow(piecePosition.z-coords[2], 2));
+    //                 if (distance < minDistance) {
+    //                     minDistance = distance;
+    //                     closestField = key;
+    //                 }
+    //             }
+
+    //             for (let [position, color] of Object.entries(self.#board.SQUARE_COLORS_MAP)) {
+    //                 // if (position != closestField) {
+    //                 //     self.container.getObjectByName(position).material.color.set(color);
+    //                 // }
+    //                 self.container.getObjectByName(position).material.color.set(color);
+    //             }
+    
+    //             for (let move of self.#legalMoves) {
+    //                 console.log("MOVEdqwdqwdqwd", move)
+    //                 if (move.slice(0, 2) == event.object.parent.parent.name) {
+    //                     self.container.getObjectByName(move.slice(2, 4)).material.color.set(0x00ff00);
+    //                 }
+    //             }
+    
+                
+    
+    //             self.container.getObjectByName(closestField).material.color.set(0x0000ff);
+
+    //             const targetSquare = intersects[0].object.parent.parent;
+    //             const selectedObject = self.#selectedPiece.parent;
+    //             if (!selectedObject || !targetSquare) return;
+            
+    //             const targetPosition = intersects[0].object.parent.parent.position;
+    //             selectedObject.position.set(0, 0, 0);
+    //             selectedObject.parent.parent = self.#scene.getObjectByName(targetSquare);
+            
+    //             self.#selectedPiece = null;
+    //         }
+    //     }
+    // }
+
+    onWindowResize(self){
+
+        self.camera.aspect = window.innerWidth / window.innerHeight;
+        self.camera.updateProjectionMatrix();
+
+        self.renderer.setSize( window.innerWidth, window.innerHeight );
+
     }
 
     testfun(number){
@@ -416,196 +700,3 @@ export class ThreeJsView {
 
 } 
 export default ThreeJsView;
-// export const testfun = ThreeJsView.testfun;
-
-// if (typeof(exports) !== 'undefined')
-// {
-//   module.exports = ThreeJsView;
-// }
-
-
-
-// if (typeof(exports) !== 'undefined')
-// {
-//   module.exports = ThreeJsView;
-// }
-
-//     // var cameraPosition = new THREE.Vector3(0, 12.9, 12.9);
-
-//     // var cameraTarget = new THREE.Vector3(-100, -100, -100);
-//     var lightPosition = new THREE.Vector3(30, 15, -17);
-
-//     var ambientLightIntensity = 0.45;
-//     var directionalLightIntensity = 1.75;
-
-//     var clearColour = 0x404040;
-//     var ambientLightColour = 0xFFFFFF;
-//     var directionalLightColour = 0xFFFFFF;
-
-//     var shadowFrustum = 50;
-//     var shadowMapWidth = 1024;
-//     var shadowMapHeight = 1024;
-
-
-    
-
-
-//     var renderer = new THREE.WebGLRenderer({antialias: true});
-//     renderer.setSize(width, height);
-//     renderer.setClearColor(clearColour, 1);
-//     renderer.shadowMap.enabled = true;
-//     renderer.shadowMap.type = THREE.PCFShadowMap;
-//     // document.body.appendChild(renderer.domElement);
-//     // document.body.
-//     let element = document.getElementById('board');
-    
-//     element.appendChild(renderer.domElement);
-//     // var light = new THREE.PointLight( 0xffffff, 0.4 );
-//     // camera.add( light );
-
-    
-//     init();
-
-// function init() {
-//     var Board = new BuildBoard();
-//     var container =  Board.buildBoardWithPieces();
-//     #scene.add(container);
-
-//     // const axesHelper = new THREE.AxesHelper( 5 );
-//     // #scene.add( axesHelper );
-
-
-//     var ambientLight = new THREE.AmbientLight(0x555555);
-//     #scene.add(ambientLight);
-
-    
-//     var Orbcontrols = new OrbitControls(camera,renderer.domElement);
-//     // Orbcontrols.maxPolarAngle = Math.PI / 6;
-//     // Orbcontrols.minPolarAngle = Math.PI / 6;
-//     // Orbcontrols.minDistance = 10;
-//     // Orbcontrols.maxDistance = 200;
-//     // Orbcontrols.mouseButtons = {
-//     //     LEFT: THREE.MOUSE.ROTATE,
-//     //     MIDDLE: THREE.MOUSE.DOLLY,
-//     // }
-
-//     console.log(#scene.children);
-
-  
-//     const controls = new DragControls(Board.figures, camera, renderer.domElement);
-    
-    
-//     controls.addEventListener('hoveron', function(event) {
-//         event.object.material.color.set("#999");
-//     });
-
-//     controls.addEventListener('hoveroff', function(event) {
-//         event.object.material.color.set('#fff');
-//     });
-
-//     let currentField;
-//     let currentFieldColor;
-//     let previousFieldColor;
-//     let previousField;
-//     let closestField;
-//     controls.addEventListener( 'dragstart', function ( event ) {
-//         Orbcontrols.enabled = false;
-
-//         event.object.material.color.set("#ccc");
-//         // console.log(event.object);
-
-//         renderer.domElement.classList.remove("cursor-on");
-//         renderer.domElement.classList.add("cursor-none");
-        
-
-//         let fieldPosition = new THREE.Vector3( 0, 0, 0 );
-//         container.getObjectByName("a1").getWorldPosition(fieldPosition);
-//         // console.log(fieldPosition);
-
-//     } );
-
-//     // console.log(Board.SQUARE_POSITIONS_MAP);
-    
-//     controls.addEventListener ( 'drag', function( event ){
-//         event.object.position.z = 0; // This will prevent moving z axis, but will be on 0 line. change this to your object position of z axis.
-//         #scene.updateMatrixWorld();
-//         let positions = Board.SQUARE_POSITIONS_MAP;
-        
-//         let piecePosition = new THREE.Vector3( 0, 0, 0 );
-//         event.object.getWorldPosition(piecePosition);
-//         // console.log(piecePosition);
-//         // let worldPosition = event.object.localToWorld(piecePosition);
-//         let minDistance = 10000;
-        
-//         for (let [key, coords] of Object.entries(positions)) {
-//             let distance = Math.sqrt(Math.pow(piecePosition.x-coords[0], 2) + Math.pow(piecePosition.z-coords[2], 2));
-//             if (distance < minDistance) {
-//                 minDistance = distance;
-//                 closestField = key;
-//             }
-//         }
-
-
-//         if (previousField == undefined) {
-//             previousField = closestField;
-//             previousFieldColor = container.getObjectByName(previousField).material.color.clone();
-//             // console.log(previousFieldColor);
-
-//             currentField = closestField;
-//             currentFieldColor = container.getObjectByName(currentField).material.color.clone();
-//             // console.log(currentFieldColor);
-
-//             console.log("pierwsze ustawwienia");
-//         }
-
-//         currentField = closestField;
-//         // console.log(container.getObjectByName(currentField).material.color.getHexString());
-
-        
-//         // currentFieldColor =  container.getObjectByName(closestField).material.color;
-
-//         // container.getObjectByName(closestField).material.color.set("#eee");
-//         if (currentField != previousField) {
-//             console.log("powrot");
-//             console.log(previousFieldColor);
-//             container.getObjectByName(previousField).material.color.set(previousFieldColor);
-//             previousField = currentField;
-//             previousFieldColor = container.getObjectByName(previousField).material.color.clone();
-//             console.log("powrot");
-
-
-//         }
-
-//         if (container.getObjectByName(currentField).material.color.getHexString() != '0000ff' ){
-            
-//             currentFieldColor =  container.getObjectByName(closestField).material.color.clone();
-//             container.getObjectByName(closestField).material.color.set("#00f");
-//             console.log("w ifie");
-
-//         }
- 
-//     });
-    
-//     controls.addEventListener( 'dragend', function ( event ) {
-//         Orbcontrols.enabled = true;
-
-//         event.object.material.color.set("#ffffff");
-//         const vector = new THREE.Vector3( 0, 0, 0 );
-//         event.object.getWorldPosition(vector);
-//         // console.log(vector);
-//         container.getObjectByName(closestField).material.color.set(previousFieldColor);
-//         event.object.parent
-//         renderer.domElement.classList.add("cursor-on");
-//         renderer.domElement.classList.remove("cursor-none");
-//     } );
-
-//     Orbcontrols.update();
-
-//     render();
-// }
-
-
-// function render() {
-//     renderer.render(#scene, camera);
-//     requestAnimationFrame(render);
-// }
