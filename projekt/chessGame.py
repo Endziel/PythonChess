@@ -6,6 +6,10 @@ class ChessGame:
         self.whitePlayerSid = ""
         self.blackPlayerSid = ""
         self.board = chess.Board()
+        self.gameFinished = False;
+
+    def isFinished(self):
+        return self.gameFinished
 
     def getLegalMoves(self):
         return [move.uci() for move in list(self.board.legal_moves)]
@@ -126,7 +130,7 @@ class ChessGame:
         self.sio.emit("message", {'text': 'RESIGNED'}, room=self.roomNr, to=resigningPlayerSid)
         self.sio.emit("message", {'text': 'YOUR OPPONENT HAS RESIGNED.'}, room=self.roomNr, skip_sid=resigningPlayerSid)
         self.sio.emit("blockMovement", room=self.roomNr)
-
+        self.gameFinished = True
 
     def drawProposal(self, playerSid):
         self.sio.emit("drawProposal", room=self.roomNr, skip_sid=playerSid)
@@ -135,6 +139,7 @@ class ChessGame:
     def draw(self, playerSid, answer):
         if answer:
             self.sio.emit("message", {'text': 'DRAW'}, room=self.roomNr)
+            self.gameFinished = True
         else:
             self.sio.emit("message", {'text': 'Opponent didn\'t accept draw'}, room=self.roomNr, skip_sid=playerSid)
             if self.board.turn == chess.WHITE:
@@ -146,13 +151,14 @@ class ChessGame:
         self.sio.emit("message", {'text': "YOUR TIME IS UP"}, to=playerSid)
         self.sio.emit("message", {'text': "OPPONENT TIME IS UP"}, skip_sid=playerSid)
         self.sio.emit("blockMovement", room=self.roomNr)
+        self.gameFinished = True
 
     def checkGameOver(self):
         # checkmate
         if self.board.is_checkmate():
             self.sio.emit("blockMovement", room=self.roomNr)
             self.sio.emit("message", {'text': 'CHECKMATE'}, room=self.roomNr)
-        
+            self.gameFinished = True
         # resignation
         
 
@@ -165,12 +171,14 @@ class ChessGame:
         if self.board.is_stalemate():
             self.sio.emit("blockMovement", room=self.roomNr)
             self.sio.emit("message", {'text': 'STALEMATE'}, room=self.roomNr)
-
+            self.gameFinished = True
+        
         # insufficient material
         if self.board.is_insufficient_material():
             self.sio.emit("blockMovement", room=self.roomNr)
             self.sio.emit("message", {'text': 'INSUFFICIENT MATERIAL'}, room=self.roomNr)
-        
+            self.gameFinished = True
+
         # 50 move rule This allows either of the player to ask for a draw if there is no capture that has been made or any of the paws haven’t moved since the past 50 moves.
         if self.board.is_fifty_moves():
             pass
@@ -182,6 +190,7 @@ class ChessGame:
         if self.board.is_repetition():
             self.sio.emit("blockMovement", room=self.roomNr)
             self.sio.emit("message", {'text': 'REPETITION'}, room=self.roomNr)
+            self.gameFinished = True
 
         # agreement 
         # one player asks for draw

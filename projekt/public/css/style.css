@@ -22,10 +22,10 @@ body {
     overflow: hidden;
 }
 
-#board canvas {
+/* #board canvas {
     width: 100vw !important;
     height: 100vh !important;
-}
+} */
 
 .draw-buttons-container {
   position: absolute;
