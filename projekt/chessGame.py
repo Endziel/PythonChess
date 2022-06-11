@@ -152,13 +152,14 @@ class ChessGame:
 
     def reset(self, playerSid, answer):
         if answer:
-                self.sio.emit("startGameWhite", {'text': "white", 'legalMoves': self.getLegalMoves()}, to=self.blackPlayerSid)
-                self.sio.emit("startGameBlack", {'text': "black", 'legalMoves': None}, to=self.whitePlayerSid)
-                tmp = self.blackPlayerSid
-                self.blackPlayerSid = self.whitePlayerSid
-                self.whitePlayerSid = tmp
-                self.isFinished = False
-                self.board = chess.Board()
+            # self.sio.emit("clearDocument", room=self.roomNr)
+            self.sio.emit("startGameWhite", {'text': "white", 'legalMoves': self.getLegalMoves()}, to=self.whitePlayerSid)
+            self.sio.emit("startGameBlack", {'text': "black", 'legalMoves': None}, to=self.blackPlayerSid)
+            tmp = self.blackPlayerSid
+            self.blackPlayerSid = self.whitePlayerSid
+            self.whitePlayerSid = tmp
+            self.isFinished = False
+            self.board = chess.Board()
         else:
             self.sio.emit("message", {'text': 'Opponent didn\'t accept restart'}, room=self.roomNr, skip_sid=playerSid)
             if self.board.turn == chess.WHITE:
