@@ -70,13 +70,13 @@ class Server:
         @self.sio.event
         def resign(sid):
             roomNr = self.getRoomNumber(sid)
-            if not self.listOfRooms[roomNr].isFinished:
+            if not self.listOfRooms[roomNr].isFinished():
                 self.listOfRooms[roomNr].resign(sid)
 
         @self.sio.event
         def drawProposal(sid):
             roomNr = self.getRoomNumber(sid)
-            if not self.listOfRooms[roomNr].isFinished:
+            if not self.listOfRooms[roomNr].isFinished():
                 self.listOfRooms[roomNr].drawProposal(sid)
 
         @self.sio.event
