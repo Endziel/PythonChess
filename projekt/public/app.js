@@ -100,6 +100,11 @@ export class AppClient {
             this.Game.drawProposal();
         })
 
+        this.socket.on('resetProposal', () => {
+            console.log("resetProposal");
+            this.Game.resetProposal();
+        })
+
 
         document.querySelector('input').onkeyup = (e) => {
     
@@ -121,6 +126,10 @@ export class AppClient {
             this.socket.emit('drawProposal')
         }
 
+        document.querySelector('#btn-reset').onclick = () => {
+            this.socket.emit('resetProposal')
+          
+        }
         // document.querySelector('#btn-draw-accept').onclick = () => {
         //     this.socket.emit('draw', true)
         // }

@@ -145,6 +145,27 @@ class ChessGame:
             else:
                 self.sio.emit("unblockMovement", self.getLegalMoves(), to=self.blackPlayerSid)
     
+
+    def resetProposal(self, playerSid):
+        self.sio.emit("resetProposal", room=self.roomNr, skip_sid=playerSid)
+        self.sio.emit("blockMovement", room=self.roomNr)
+
+    def reset(self, playerSid, answer):
+        if answer:
+                self.sio.emit("startGameWhite", {'text': "white", 'legalMoves': self.getLegalMoves()}, to=self.blackPlayerSid)
+                self.sio.emit("startGameBlack", {'text': "black", 'legalMoves': None}, to=self.whitePlayerSid)
+                tmp = self.blackPlayerSid
+                self.blackPlayerSid = self.whitePlayerSid
+                self.whitePlayerSid = tmp
+                self.isFinished = False
+                self.board = chess.Board()
+        else:
+            self.sio.emit("message", {'text': 'Opponent didn\'t accept restart'}, room=self.roomNr, skip_sid=playerSid)
+            if self.board.turn == chess.WHITE:
+                self.sio.emit("unblockMovement", self.getLegalMoves(), to=self.whitePlayerSid)
+            else:
+                self.sio.emit("unblockMovement", self.getLegalMoves(), to=self.blackPlayerSid)
+
     def timeEnd(self, playerSid):
         self.sio.emit("message", {'text': "YOUR TIME IS UP"}, to=playerSid)
         self.sio.emit("message", {'text': "OPPONENT TIME IS UP"}, skip_sid=playerSid)
@@ -157,13 +178,6 @@ class ChessGame:
             self.sio.emit("blockMovement", room=self.roomNr)
             self.sio.emit("message", {'text': 'CHECKMATE'}, room=self.roomNr)
             self.gameFinished = True
-        # resignation
-        
-
-
-        # timeout
-
-
 
         # stalemate
         if self.board.is_stalemate():
@@ -176,13 +190,6 @@ class ChessGame:
             self.sio.emit("blockMovement", room=self.roomNr)
             self.sio.emit("message", {'text': 'INSUFFICIENT MATERIAL'}, room=self.roomNr)
             self.gameFinished = True
-
-        # 50 move rule This allows either of the player to ask for a draw if there is no capture that has been made or any of the paws haven’t moved since the past 50 moves.
-        if self.board.is_fifty_moves():
-            pass
-            # TODO: add emit which asks player for draw
-            # self.sio.emit("blockMovement", room=self.roomNr)
-            # self.sio.emit("message", 'CHECKMATE', room=self.roomNr)
 
         # repetition
         if self.board.is_repetition():

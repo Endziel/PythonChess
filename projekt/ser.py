@@ -85,6 +85,16 @@ class Server:
             self.listOfRooms[roomNr].draw(sid, answer)
 
         @self.sio.event
+        def resetProposal(sid):
+            roomNr = self.getRoomNumber(sid)
+            self.listOfRooms[roomNr].resetProposal(sid)
+
+        @self.sio.event
+        def reset(sid, answer):
+            roomNr = self.getRoomNumber(sid)
+            self.listOfRooms[roomNr].reset(sid, answer)
+
+        @self.sio.event
         def timeEnd(sid):
             roomNr = self.getRoomNumber(sid)
             self.listOfRooms[roomNr].timeEnd(sid)
