@@ -130,11 +130,12 @@ export class BuildBoard{
             
             var textMaterial = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
         
-            console.log(textGeo);
+            // console.log(textGeo);
             var mesh = new THREE.Mesh( textGeo, textMaterial );
 
             mesh.position.set(-9, 0, tz+0.25);
             mesh.rotation.set(-Math.PI / 3, 0, 0);
+            mesh.name = (i+1).toString() + "_1";
             // console.log(this.#board.parent)
             this.#board.add(mesh);
 
@@ -142,6 +143,7 @@ export class BuildBoard{
 
             mesh.position.set(9, 0, tz-0.25);
             mesh.rotation.set(Math.PI / 3, Math.PI, 0);
+            mesh.name = (i+1).toString() + "_2";
             // console.log(this.#board.parent)
             this.#board.add(mesh);
         }
@@ -165,11 +167,12 @@ export class BuildBoard{
             
             var textMaterial = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
         
-            console.log(textGeo);
+            // console.log(textGeo);
             var mesh = new THREE.Mesh( textGeo, textMaterial );
 
             mesh.position.set(-tx-0.25, 0, 9.5);
             mesh.rotation.set(-Math.PI / 3, 0, 0);
+            mesh.name = letters[i] + "_1"
             // console.log(this.#board.parent)
             this.#board.add(mesh);
 
@@ -177,6 +180,7 @@ export class BuildBoard{
 
             mesh.position.set(tx+0.25, 0, -9.5);
             mesh.rotation.set(Math.PI / 3, Math.PI, 0);
+            mesh.name = letters[i] + "_2"
             // console.log(this.#board.parent)
             this.#board.add(mesh);
         }
@@ -276,6 +280,7 @@ export class BuildBoard{
         let gltf = await loader.loadAsync('/projekt/public/objects/board_bottom3.glb');
         
         let boardBottomRectangle = gltf.scene.children[0];
+        boardBottomRectangle.name = "board_bottom";
         boardBottomRectangle.position.setY(-1.5);
       
         this.#board.add(boardBottomRectangle);
