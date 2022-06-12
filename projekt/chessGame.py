@@ -158,7 +158,7 @@ class ChessGame:
             tmp = self.blackPlayerSid
             self.blackPlayerSid = self.whitePlayerSid
             self.whitePlayerSid = tmp
-            self.isFinished = False
+            self.gameFinished = False
             self.board = chess.Board()
         else:
             self.sio.emit("message", {'text': 'Opponent didn\'t accept restart'}, room=self.roomNr, skip_sid=playerSid)

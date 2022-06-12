@@ -43,7 +43,7 @@ export class AppClient {
             this.Game = new ThreeJsView(data['text'], this.socket, data['legalMoves']);
             this.Game.render();
             this.Game.startTimer();
-            this.Game.unpauseTimer();
+            // this.Game.unpauseTimer();
             
             const el = document.createElement('p');
             el.innerHTML = data['text'];

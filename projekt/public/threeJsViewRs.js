@@ -66,8 +66,8 @@ export class ThreeJsView {
         this.#timeLeft = 120;
         
 
-        const axesHelper = new THREE.AxesHelper( 5 );
-            this.scene.add( axesHelper );
+        // const axesHelper = new THREE.AxesHelper( 5 );
+        //     this.scene.add( axesHelper );
 
         // this.#mouse = new THREE.Vector2();
         // this.#mouseClick = new THREE.Vector2();
@@ -229,8 +229,8 @@ export class ThreeJsView {
 
         function onDragStart(event, self, orbitControls) {
             event.object.getWorldPosition(objectInWorldVectorBeforeMove);
-            const axesHelper = new THREE.AxesHelper( 30 );
-            event.object.add( axesHelper );
+            // const axesHelper = new THREE.AxesHelper( 30 );
+            // event.object.add( axesHelper );
 
             orbitControls.enabled = false;
     
@@ -244,6 +244,7 @@ export class ThreeJsView {
         }
     
         function onDrag(event, self) {
+            
             event.object.position.z = 0; // This will prevent moving z axis, but will be on 0 line. change this to your object position of z axis.
             console.log("EVENT OBJECT", event.object)
             self.scene.updateMatrixWorld();
@@ -315,6 +316,9 @@ export class ThreeJsView {
         }
     
         function onDragEnd(event, self, orbitControls) {
+            if (self.isTimerPaused) {
+                self.unpauseTimer();
+            }
             self.blockPieces();
             orbitControls.enabled = true;
     
