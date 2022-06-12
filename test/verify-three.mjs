@@ -15,12 +15,13 @@ import {JSDOM} from 'jsdom';
 import path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { brotliDecompressSync } from 'zlib';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const dom = new JSDOM('<html><body>dwqnqwfinqofinqwoifnqowifn</body></html>');
-console.log(dom.window.document.body)
-console.log(dom.serialize());
-console.log('file://' + __dirname.slice(0, -5) + '\\projekt\\public\\index.html');
+// console.log(dom.window.document.body)
+// console.log(dom.serialize());
+// console.log('file://' + __dirname.slice(0, -5) + '\\projekt\\public\\index.html');
 
 let board;
 
@@ -43,8 +44,13 @@ describe('The THREE object', function() {
 })
 
 describe('The BuildBoarClass', function(){
-  let board = new BuildBoard();
+
+    it('dummy', function(){
+      assert.equal(2,2);
+    })
   
+  let board = new BuildBoard();
+
     it('square size should not be undefined', function(){
       assert.notEqual(undefined, board.SQUARE_SIZE);
     })
@@ -65,9 +71,47 @@ describe('The BuildBoarClass', function(){
       assert.equal(16, board.whiteFigures.length);
     })
 
-    it('dummy', function(){
-      assert.equal(2,2);
+    it('should create 64 squares', function(done){
+      board.buildBoardWithPieces();
+      done();
+      let counter = 0
+      for (const [key, value] of board.SQUARE_POSITIONS_MAP.entries()) {
+        if (board.getObjectByName(key)) {
+          counter++;
+        }
+      }
+
+      assert.equal(64, counter);
     })
+
+    it('should return white queen', function(done){
+      board.buildBoardWithPieces();
+      done();
+      assert.equal(board.board.getObjectByName('d1').children[0].name, 'queen');
+    })
+
+    it('should return black rook', function(done){
+      board.buildBoardWithPieces();
+      done();
+      assert.equal(board.board.getObjectByName('a8').children[0].name, 'rook');
+    })
+
+    it('should return field label geometry', function(done){
+      board.buildBoardWithPieces();
+      done();
+      const geometry = board.board.getObjectByName('c_1').geometry;
+      geometry.should.be.instanceof(THREE.TextGeometry);
+      
+      
+    })
+
+    it('should return board bottom object', function(done){
+      board.buildBoardWithPieces();
+      done();
+      assert.notEqual(board.board.getObjectByName('board_bottom'), undefined);
+    })
+
+    
 
 
 })
