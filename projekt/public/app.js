@@ -31,6 +31,15 @@ export class AppClient {
         });
     
         this.socket.on('startGameWhite', data => {
+            let elements = document.querySelectorAll( 'body > *:not(.chat-container):not(#board)' );
+            for (let i = 0; i < elements.length; i++) {
+                elements[i].remove()
+            }
+            if (document.querySelector("#board canvas")) {
+                document.querySelector("#board canvas").remove()
+            }
+
+            
             this.Game = new ThreeJsView(data['text'], this.socket, data['legalMoves']);
             this.Game.render();
             this.Game.startTimer();
@@ -45,6 +54,13 @@ export class AppClient {
     
     
         this.socket.on('startGameBlack', data => {
+            let elements = document.querySelectorAll( 'body > *:not(.chat-container):not(#board)' );
+            for (let i = 0; i < elements.length; i++) {
+                elements[i].remove()
+            }
+            if (document.querySelector("#board canvas")) {
+                document.querySelector("#board canvas").remove()
+            }
             this.Game = new ThreeJsView(data['text'], this.socket, data['legalMoves']);
             this.Game.blockPieces();
             this.Game.render();
@@ -54,6 +70,10 @@ export class AppClient {
             el.innerHTML = data['text'];
             el.classList.add("game-info-message");
             document.querySelector('.messages-container').appendChild(el)
+        });
+
+        this.socket.on('clearDocument', () => {
+            
         });
     
         this.socket.on('blockMovement', () => {
@@ -100,6 +120,11 @@ export class AppClient {
             this.Game.drawProposal();
         })
 
+        this.socket.on('resetProposal', () => {
+            console.log("resetProposal");
+            this.Game.resetProposal();
+        })
+
 
         document.querySelector('input').onkeyup = (e) => {
     
@@ -121,6 +146,10 @@ export class AppClient {
             this.socket.emit('drawProposal')
         }
 
+        document.querySelector('#btn-reset').onclick = () => {
+            this.socket.emit('resetProposal')
+          
+        }
         // document.querySelector('#btn-draw-accept').onclick = () => {
         //     this.socket.emit('draw', true)
         // }

@@ -27,7 +27,7 @@ body {
     height: 100vh !important;
 } */
 
-.draw-buttons-container {
+.draw-buttons-container, .reset-buttons-container  {
   position: absolute;
   top: 45%;
   left: 50%;
@@ -37,11 +37,11 @@ body {
   justify-content: space-between;
 }
 
-#btn-draw-accept {
+#btn-draw-accept, #btn-reset-accept {
   background-color: greenyellow;
 }
 
-#btn-draw-decline {
+#btn-draw-decline, #btn-reset-decline {
   background-color: red;
 }
 
@@ -109,7 +109,7 @@ body {
   justify-content: center;
 }
 
-.proposal-buttons button, .draw-buttons-container button{
+.proposal-buttons button, .draw-buttons-container button, .reset-buttons-container button{
   display: flex;
   justify-content: center;
   margin-bottom: .5em;
@@ -118,7 +118,7 @@ body {
   font-family: "Open Sans", sans-serif;
 }
 
-.proposal-buttons button:hover, .draw-buttons-container button:hover{
+.proposal-buttons button:hover, .draw-buttons-container button:hover, .reset-buttons-container button:hover{
   cursor: pointer;
 }
 
@@ -128,6 +128,10 @@ body {
 
 #btn-resign {
   background-color: red;
+}
+
+#btn-reset {
+  background-color: greenyellow;
 }
 
 .send-box input {

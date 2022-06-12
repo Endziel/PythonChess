@@ -38,9 +38,9 @@ export class ThreeJsView {
 
     constructor(myPieces, socket, legalMoves, testDocument = undefined) {
         if(myPieces == "white"){
-            this.#camera = this.#createCamera(12.9, 12.9);
+            this.#camera = this.#createCamera(20, 12.9);
         }else{
-            this.#camera = this.#createCamera(12.9, -12.9);
+            this.#camera = this.#createCamera(20, -12.9);
         }
 
         this.#myPieces = myPieces;
@@ -181,11 +181,11 @@ export class ThreeJsView {
 
     #addControls(piecesColor) {
         this.#orbitControls = new OrbitControls(this.#camera,this.#renderer.domElement);
-        // Orbcontrols.maxPolarAngle = Math.PI / 6;
-        // Orbcontrols.minPolarAngle = Math.PI / 6;
-        // Orbcontrols.minDistance = 10;
-        // Orbcontrols.maxDistance = 200;
-        // Orbcontrols.mouseButtons = {
+        // this.#orbitControls.maxPolarAngle = Math.PI / 6;
+        // this.#orbitControls.minPolarAngle = Math.PI / 6;
+        // this.#orbitControls.minDistance = 10;
+        // this.#orbitControls.maxDistance = 200;
+        // this.#orbitControls.mouseButtons = {
         //     LEFT: THREE.MOUSE.ROTATE,
         //     MIDDLE: THREE.MOUSE.DOLLY,
         // }
@@ -555,135 +555,32 @@ export class ThreeJsView {
         this.#isTimerPaused = false;
     }
 
-    // onMouseMove( self, event ) {
+    resetProposal() {
+        let drawButtonsContainer = document.createElement("div");
+        drawButtonsContainer.classList.add("reset-buttons-container");
 
-    //     // calculate pointer position in normalized device coordinates
-    //     // (-1 to +1) for both components
-    
-    //     self.#mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    //     self.#mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-    
-    // }
+        let buttonAccept = document.createElement("button");
+        buttonAccept.innerHTML = "ACCEPT RESTART";
+        buttonAccept.setAttribute("id", "btn-reset-accept");
 
-    // intersect(self, position) {
-    //     self.#raycaster.setFromCamera(position, self.#camera);
-    //     return self.#raycaster.intersectObjects(self.#container.children, true);
-    //   }
-    
-    // dragObject(self) {
-    //     if (self.#draggable != null) {
-    //       const found = self.intersect(self, self.#mouse);
-    //       if (found.length > 0) {
-    //         for (let i = 0; i < found.length; i++) {
-    //           if (!found[i].object.parent.uuid == self.#container.uuid)
-    //             continue
-              
-    //           let target = found[i].name;
-    //           console.log(target)
-                
-    //           self.#draggable.position.x = target.x
-    //           self.#draggable.position.z = target.z
-    //         }
-    //       }
-    //     }
-    //   }
+        let buttonDecline = document.createElement("button");
+        buttonDecline.innerHTML = "DECLINE RESTART";
+        buttonDecline.setAttribute("id", "btn-reset-decline");
 
-    // resetHover(self) {
-    //     let pieces = self.#myPieces == "white" ? self.#board.whiteFigures : self.#board.blackFigures;
-    //     for (let i = 0; i < pieces.length; i++) {
-    //         pieces[i].children[0].material.color.set(pieces[i].children[0].userData.currentSquare == self.#selectedPiece ? "#ddd" : "#fff");
-    //     }
-    // }
+        buttonAccept.onclick = () => {
+            drawButtonsContainer.remove()
+            this.socket.emit('reset', true)
+        }
 
-    // hoverPieces(self) {
-    //     self.#scene.updateMatrixWorld();
-    //     self.#raycaster.setFromCamera(self.#mouse, self.#camera);
-    //     const intersects = self.#raycaster.intersectObjects(self.#myPieces == "white" ? self.#board.whiteFigures : self.#board.blackFigures, true);
-    //     // console.log(self.#board.whiteFigures)
-    //     // console.log(intersects)
+        buttonDecline.onclick = () => {
+            drawButtonsContainer.remove()
+            this.socket.emit('reset', false)
+        }
 
-    //     for (let i = 0; i < intersects.length; i++) {
-    //         // intersects[i].object.material.transparent = true;
-    //         // intersects[i].object.material.opacity = 0.5;
-    //         intersects[i].object.material.color.set("#999");
-    //     }
-    // }
-
-    // onClick(self, event) {
-    //     if (self.#draggable != null) {
-    //         console.log('dropping draggable', self.#draggable)
-    //         self.#draggable = null
-    //         return;
-    //       }
-        
-    //       // THREE RAYCASTER
-    //       self.#mouseClick.x = (event.clientX / window.innerWidth) * 2 - 1;
-    //       self.#mouseClick.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        
-    //       const found = self.intersect(self, self.#mouseClick);
-    //       if (found.length > 0) {
-    //         if (found[0].object.parent.name) {
-    //             self.#draggable = found[0].object
-    //           console.log('found draggable', self.#draggable)
-    //         }
-    //       }
-    // }
-
-        
-    //     if (self.#selectedPiece) {
-    //         self.#raycaster.setFromCamera(self.#mouse, self.#camera);
-    //         intersects = self.#raycaster.intersectObjects(self.#container.children);
-        
-    //         if (intersects.length > 0 && intersects[0].object.name) {
-    //             event.object.position.z = 0; // This will prevent moving z axis, but will be on 0 line. change this to your object position of z axis.
-    //         console.log("EVENT OBJECT", event.object)
-    //         self.scene.updateMatrixWorld();
-    //             let positions = self.#board.SQUARE_POSITIONS_MAP;
-                
-    //             let piecePosition = new THREE.Vector3( 0, 0, 0 );
-    //             event.object.getWorldPosition(piecePosition);
-    //             // console.log(piecePosition);
-    //             // let worldPosition = event.object.localToWorld(piecePosition);
-    //             let minDistance = 10000;
-                
-    //             for (let [key, coords] of Object.entries(positions)) {
-    //                 let distance = Math.sqrt(Math.pow(piecePosition.x-coords[0], 2) + Math.pow(piecePosition.z-coords[2], 2));
-    //                 if (distance < minDistance) {
-    //                     minDistance = distance;
-    //                     closestField = key;
-    //                 }
-    //             }
-
-    //             for (let [position, color] of Object.entries(self.#board.SQUARE_COLORS_MAP)) {
-    //                 // if (position != closestField) {
-    //                 //     self.container.getObjectByName(position).material.color.set(color);
-    //                 // }
-    //                 self.container.getObjectByName(position).material.color.set(color);
-    //             }
-    
-    //             for (let move of self.#legalMoves) {
-    //                 console.log("MOVEdqwdqwdqwd", move)
-    //                 if (move.slice(0, 2) == event.object.parent.parent.name) {
-    //                     self.container.getObjectByName(move.slice(2, 4)).material.color.set(0x00ff00);
-    //                 }
-    //             }
-    
-                
-    
-    //             self.container.getObjectByName(closestField).material.color.set(0x0000ff);
-
-    //             const targetSquare = intersects[0].object.parent.parent;
-    //             const selectedObject = self.#selectedPiece.parent;
-    //             if (!selectedObject || !targetSquare) return;
-            
-    //             const targetPosition = intersects[0].object.parent.parent.position;
-    //             selectedObject.position.set(0, 0, 0);
-    //             selectedObject.parent.parent = self.#scene.getObjectByName(targetSquare);
-            
-    //             self.#selectedPiece = null;
-    //         }
-    //     }
-    // }
+        drawButtonsContainer.appendChild(buttonAccept);
+        drawButtonsContainer.appendChild(buttonDecline);
+        document.body.appendChild(drawButtonsContainer);
+    }
 
     onWindowResize(self){
 
