@@ -6,9 +6,9 @@
 // import { DragControls } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/DragControls.js';
 // import  BuildBoard  from '/projekt/public/buildBoard.js';
 
-import * as THREE from '../three/build/three.module.js';
-import { OrbitControls } from '../three/examples/jsm/controls/OrbitControls.js';
-import { DragControls } from '../three/examples/jsm/controls/DragControls.js';
+import * as THREE from './../three/build/three.module.js';
+import { OrbitControls } from './../three/examples/jsm/controls/OrbitControls.js';
+import { DragControls } from './../three/examples/jsm/controls/DragControls.js';
 import  BuildBoard  from './buildBoard.js';
 
 export class ThreeJsView {
