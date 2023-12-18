@@ -6,8 +6,8 @@
 
 // import * as THREE from 'https://cdn.skypack.dev/three@0.129.0/build/three.module.js';
 // import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js';
-import * as THREE from '../../projekt/three/build/three.module.js';
-import { GLTFLoader } from '../../projekt/three/examples/jsm/loaders/GLTFLoader.js';
+import * as THREE from '../three/build/three.module.js';
+import { GLTFLoader } from '../three/examples/jsm/loaders/GLTFLoader.js';
 import { jsonText } from './font.js';
 
 // if (typeof require === 'function') // test for nodejs environment

@@ -1,4 +1,4 @@
-import  ThreeJsView  from '/projekt/public/threeJsViewRs.js';
+import  ThreeJsView  from './threeJsViewRs.js';
 
 export class AppClient {
 
