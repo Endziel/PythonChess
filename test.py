@@ -114,6 +114,7 @@ class TestChessGame(unittest.TestCase):
         self.chess.draw('1', True)
         self.chess.sio.emit.assert_called_with("message", {'text': 'DRAW'}, room='chess1')
 
+
     
 if __name__ == '__main__':
     unittest.main()
